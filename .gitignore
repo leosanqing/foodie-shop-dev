@@ -1,0 +1,9 @@
+# Project exclude paths
+/foodie-api/target/
+/foodie-common/target/
+/foodie-fastdfs/target/
+/foodie-mapper/target/
+/foodie-pojo/target/
+/foodie-search/target/
+/foodie-service/target/
+/target/
