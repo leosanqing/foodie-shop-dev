@@ -1,9 +1,7 @@
 package com.leosanqing.controller.center;
 
 import com.leosanqing.pojo.Orders;
-import com.leosanqing.pojo.Users;
 import com.leosanqing.pojo.vo.OrderStatusCountsVO;
-import com.leosanqing.service.center.CenterUserService;
 import com.leosanqing.service.center.MyOrdersService;
 import com.leosanqing.utils.JSONResult;
 import com.leosanqing.utils.PagedGridResult;
@@ -14,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.resource.HttpResource;
 
 /**
  * @Author: leosanqing
@@ -51,7 +48,7 @@ public class MyOrdersController {
     }
 
 
-    @PostMapping("trend")
+    @GetMapping("trend")
     @ApiOperation(value = "查询我的订单", notes = "查询我的订单", httpMethod = "POST")
     public JSONResult getTrend(
             @ApiParam(name = "userId", value = "用户id")
@@ -89,7 +86,7 @@ public class MyOrdersController {
 
 
     @ApiOperation(value="确认收货", notes="确认收货", httpMethod = "POST")
-    @PostMapping("/confirmReceive")
+    @PostMapping("/confirm_receive")
     public JSONResult confirmReceive(
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam String userId,
@@ -110,7 +107,7 @@ public class MyOrdersController {
 
 
     @ApiOperation(value="删除订单", notes="删除订单", httpMethod = "POST")
-    @PostMapping("/delete")
+    @DeleteMapping("/order")
     public JSONResult deleteOrder(
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam String userId,
@@ -130,7 +127,7 @@ public class MyOrdersController {
 
 
     @ApiOperation(value="查询订单状态", notes="查询订单状态", httpMethod = "POST")
-    @PostMapping("/statusCounts")
+    @PostMapping("/status_counts")
     public JSONResult statusCounts(
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam String userId) {
@@ -148,7 +145,7 @@ public class MyOrdersController {
      * @param orderId
      * @return
      */
-    private JSONResult checkUserOrder(String userId,String orderId){
+    private JSONResult  checkUserOrder(String userId,String orderId){
         if (StringUtils.isBlank(userId)) {
             return JSONResult.errorMsg("用户ID不能为空");
         }
@@ -161,11 +158,5 @@ public class MyOrdersController {
         }
         return JSONResult.ok();
     }
-
-
-
-
-
-
 
 }
