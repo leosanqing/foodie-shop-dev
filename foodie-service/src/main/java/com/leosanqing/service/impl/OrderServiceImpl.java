@@ -91,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public OrderVO createOrder(List<ShopCartBO> shopCartBOList,SubmitOrderBO submitOrderBO) {
+    public OrderVO createOrder(List<ShopCartBO> shopCartBOList, SubmitOrderBO submitOrderBO) {
         String userId = submitOrderBO.getUserId();
         String itemSpecIds = submitOrderBO.getItemSpecIds();
         String addressId = submitOrderBO.getAddressId();
@@ -111,8 +111,10 @@ public class OrderServiceImpl implements OrderService {
         orders.setLeftMsg(leftMsg);
         orders.setPayMethod(payMethod);
 
-        orders.setReceiverAddress(userAddress.getProvince() + " " + userAddress.getCity() + " "
-                + userAddress.getDistrict() + " " + userAddress.getDetail());
+        orders.setReceiverAddress(userAddress.getProvince() +
+                " " + userAddress.getCity() +
+                " " + userAddress.getDistrict() +
+                " " + userAddress.getDetail());
         orders.setReceiverMobile(userAddress.getMobile());
         orders.setReceiverName(userAddress.getReceiver());
 
@@ -126,14 +128,13 @@ public class OrderServiceImpl implements OrderService {
 
 
         /*
-            分库分表：orderItems作为orders的子表，所有插入时，要先插入Orders，
+            分库分表：orderItems 作为orders的子表，所有插入时，要先插入Orders，
             这样在插入OrderItems时，才能找到对应的分片。所以这里先插入Orders,
             计算金额后，再更新一下Orders.
          */
         orders.setTotalAmount(0);
         orders.setRealPayAmount(0);
         ordersMapper.insert(orders);
-
 
 
         // 2.1 循环根据商品规格表，保存到商品规格表
@@ -145,7 +146,6 @@ public class OrderServiceImpl implements OrderService {
         for (String itemSpecId : itemSpecIdArray) {
 
             // 查询每个商品的规格
-
             final ItemsSpec itemsSpec = itemService.queryItemBySpecId(itemSpecId);
             final ShopCartBO shopCartBO = getShopCartBOFromList(shopCartBOList, itemSpecId);
 
@@ -175,10 +175,8 @@ public class OrderServiceImpl implements OrderService {
             subOrderItem.setPrice(itemsSpec.getPriceDiscount());
             orderItemsMapper.insert(subOrderItem);
 
-
             // 2.4 减库存
             itemService.decreaseItemSpecStock(itemSpecId, counts);
-
         }
 
         orders.setTotalAmount(totalAmount);
@@ -202,8 +200,7 @@ public class OrderServiceImpl implements OrderService {
         orderStatus.setCreatedTime(new Date());
         orderStatusMapper.insert(orderStatus);
 
-
-        final OrderVO orderVO = new OrderVO();
+        OrderVO orderVO = new OrderVO();
         orderVO.setOrderId(orderId);
         orderVO.setToBeRemovedList(toBeRemovedList);
         return orderVO;
@@ -211,13 +208,14 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 从购物车获得商品
+     *
      * @param list
      * @param specId
      * @return
      */
-    private ShopCartBO getShopCartBOFromList(List<ShopCartBO> list,String specId){
+    private ShopCartBO getShopCartBOFromList(List<ShopCartBO> list, String specId) {
         for (ShopCartBO bo : list) {
-            if(bo.getSpecId().equals(specId)){
+            if (bo.getSpecId().equals(specId)) {
                 return bo;
             }
         }

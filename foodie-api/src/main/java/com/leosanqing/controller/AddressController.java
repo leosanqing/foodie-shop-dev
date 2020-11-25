@@ -30,7 +30,7 @@ public class AddressController {
     @Autowired
     private AddressService addressService;
 
-    @PostMapping("list")
+    @GetMapping("list")
     @ApiOperation(value = "查询所有收货地址", notes = "查询所有收货地址", httpMethod = "POST")
     public JSONResult queryAll(
             @ApiParam(name = "userId", value = "用户id")
@@ -43,7 +43,6 @@ public class AddressController {
         List<UserAddress> userAddresses = addressService.queryAll(userId);
         return JSONResult.ok(userAddresses);
     }
-
 
     @PostMapping("add")
     @ApiOperation(value = "添加收货地址", notes = "添加收货地址", httpMethod = "POST")

@@ -220,7 +220,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public ItemsSpec queryItemBySpecId(String specId) {
-
         return itemsSpecMapper.selectByPrimaryKey(specId);
     }
 

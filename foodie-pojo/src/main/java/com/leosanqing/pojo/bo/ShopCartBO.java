@@ -16,5 +16,4 @@ public class ShopCartBO {
     private Integer buyCounts;
     private String priceDiscount;
     private String priceNormal;
-
 }

@@ -23,7 +23,7 @@ import java.util.Optional;
  * @Date: 2019-12-12 07:59
  */
 @RestController
-@RequestMapping("shopcart")
+@RequestMapping("shop_cart")
 @Api(value = "购物车相关接口api", tags = {"用于购物车相关操作"})
 public class ShopCartController extends BaseController{
 
@@ -64,10 +64,11 @@ public class ShopCartController extends BaseController{
                 if (specId.equals(shopCartBO.getSpecId())) {
                     cartBO.setBuyCounts(cartBO.getBuyCounts() + shopCartBO.getBuyCounts());
                     isExist = true;
+                    break;
                 }
-                if (!isExist) {
-                    shopCartBOList.add(shopCartBO);
-                }
+            }
+            if (!isExist) {
+                shopCartBOList.add(shopCartBO);
             }
         }
 

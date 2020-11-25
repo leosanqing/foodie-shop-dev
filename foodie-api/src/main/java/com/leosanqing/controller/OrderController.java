@@ -14,10 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,13 +45,11 @@ public class OrderController extends BaseController{
             HttpServletRequest request,
             HttpServletResponse response) {
 
-
         final String shopCartStr = redisOperator.get(SHOP_CART + ":" + submitOrderBO.getUserId());
         if(StringUtils.isNotBlank(shopCartStr)){
             return JSONResult.errorMsg("购物车数据不正确");
         }
         List<ShopCartBO> shopCartBOList = JsonUtils.jsonToList(shopCartStr, ShopCartBO.class);
-
 
         // 1.创建订单
         OrderVO orderVO = orderService.createOrder(shopCartBOList,submitOrderBO);
@@ -76,14 +71,10 @@ public class OrderController extends BaseController{
     }
 
 
-    @PostMapping("getPaidOrderInfo")
+    @GetMapping("paid_order_info")
     @ApiOperation(value = "查询支付状态", notes = "查询支付状态", httpMethod = "POST")
     public JSONResult getPaidOrderInfo(String orderId) {
-
         OrderStatus orderStatus = orderService.queryOrderStatusInfo(orderId);
         return JSONResult.ok(orderStatus);
     }
-
-
-
 }

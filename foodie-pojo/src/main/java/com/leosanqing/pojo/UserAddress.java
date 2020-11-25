@@ -50,7 +50,7 @@ public class UserAddress {
     /**
      * 扩展字段
      */
-    private String extand;
+    private String extend;
 
     /**
      * 是否默认地址
@@ -219,17 +219,17 @@ public class UserAddress {
      *
      * @return extand - 扩展字段
      */
-    public String getExtand() {
-        return extand;
+    public String getExtend() {
+        return extend;
     }
 
     /**
      * 设置扩展字段
      *
-     * @param extand 扩展字段
+     * @param extend 扩展字段
      */
-    public void setExtand(String extand) {
-        this.extand = extand;
+    public void setExtend(String extend) {
+        this.extend = extend;
     }
 
     /**
