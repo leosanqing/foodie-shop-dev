@@ -1,7 +1,10 @@
 package com.leosanqing.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leosanqing.enums.OrderStatusEnum;
 import com.leosanqing.enums.YesOrNo;
+import com.leosanqing.mapper.ItemsMapper;
 import com.leosanqing.mapper.OrderItemsMapper;
 import com.leosanqing.mapper.OrderStatusMapper;
 import com.leosanqing.mapper.OrdersMapper;
@@ -26,6 +29,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author: leosanqing
@@ -34,64 +38,63 @@ import java.util.List;
  * @Description: TODO
  */
 @Service
-public class OrderServiceImpl implements OrderService {
+public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements OrderService {
 
     @Resource
     private OrdersMapper ordersMapper;
 
-    @Autowired
+    @Resource
     private AddressService addressService;
 
-    @Autowired
+    @Resource
     private ItemService itemService;
 
-    @Autowired
+    @Resource
     private OrderItemsMapper orderItemsMapper;
 
-    @Autowired
+    @Resource
     private Sid sid;
 
-    @Autowired
+    @Resource
     private OrderStatusMapper orderStatusMapper;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public OrderStatus queryOrderStatusInfo(String orderId) {
-        return orderStatusMapper.selectByPrimaryKey(orderId);
+        return orderStatusMapper.selectById(orderId);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void closeOrder() {
-
         // 查询所有未付款订单，判断时间是否超时（1天），超时则关闭交易
-        OrderStatus queryOrder = new OrderStatus();
-        queryOrder.setOrderStatus(OrderStatusEnum.WAIT_PAY.type);
-        List<OrderStatus> list = orderStatusMapper.select(queryOrder);
-        for (OrderStatus os : list) {
-            // 获得订单创建时间
-            Date createdTime = os.getCreatedTime();
+        List<OrderStatus> list = orderStatusMapper.selectList(
+                Wrappers
+                        .lambdaQuery(OrderStatus.class)
+                        .eq(OrderStatus::getOrderStatus, OrderStatus.OrderStatusEnum.WAIT_PAY.type)
+        );
+
+        list.forEach(orderStatus -> {
             // 和当前时间进行对比
-            int days = DateUtil.daysBetween(createdTime, new Date());
+            int days = DateUtil.daysBetween(orderStatus.getCreatedTime(), new Date());
             if (days >= 1) {
                 // 超过1天，关闭订单
-                doCloseOrder(os.getOrderId());
+                doCloseOrder(orderStatus.getOrderId());
             }
-        }
+        });
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    void doCloseOrder(String orderId) {
+    public void doCloseOrder(String orderId) {
         OrderStatus close = new OrderStatus();
         close.setOrderId(orderId);
         close.setOrderStatus(OrderStatusEnum.CLOSE.type);
         close.setCloseTime(new Date());
-        orderStatusMapper.updateByPrimaryKeySelective(close);
+        orderStatusMapper.updateById(close);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
-    public OrderVO createOrder(List<ShopCartBO> shopCartBOList, SubmitOrderBO submitOrderBO) {
+    public OrderVO createOrder(List<ShopCartBO> shopCartBOList, SubmitOrderBO submitOrderBO) throws InterruptedException {
         String userId = submitOrderBO.getUserId();
         String itemSpecIds = submitOrderBO.getItemSpecIds();
         String addressId = submitOrderBO.getAddressId();
@@ -146,14 +149,18 @@ public class OrderServiceImpl implements OrderService {
         for (String itemSpecId : itemSpecIdArray) {
 
             // 查询每个商品的规格
-            final ItemsSpec itemsSpec = itemService.queryItemBySpecId(itemSpecId);
-            final ShopCartBO shopCartBO = getShopCartBOFromList(shopCartBOList, itemSpecId);
+            ItemsSpec itemsSpec = itemService.queryItemBySpecId(itemSpecId);
 
-            toBeRemovedList.add(shopCartBO);
+            Optional<ShopCartBO> optional = shopCartBOList.stream()
+                    .filter(bo -> bo.getSpecId().equals(itemSpecId))
+                    .findFirst();
+
             int counts = 0;
-            if (shopCartBO != null) {
-                counts = shopCartBO.getBuyCounts();
+            if (optional.isPresent()){
+                toBeRemovedList.add(optional.get());
+                counts = optional.get().getBuyCounts();
             }
+
             // 获取价格
             totalAmount += itemsSpec.getPriceNormal() * counts;
             realPayTotalAmount += itemsSpec.getPriceDiscount() * counts;
@@ -184,18 +191,17 @@ public class OrderServiceImpl implements OrderService {
 
         // 因为 userId 是分片项.不能修改，所以在更新时设置成 null
         orders.setUserId(null);
-        ordersMapper.updateByPrimaryKeySelective(orders);
+        ordersMapper.updateById(orders);
 
 //        ordersMapper.insert(orders);
 
         // 3. 订单状态表
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setOrderId(orderId);
-        try {
-            Thread.sleep(3 * 1000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
+        // 模拟付款过程
+        Thread.sleep(3 * 1000L);
+
         orderStatus.setOrderStatus(OrderStatusEnum.WAIT_DELIVER.type);
         orderStatus.setCreatedTime(new Date());
         orderStatusMapper.insert(orderStatus);
@@ -206,19 +212,4 @@ public class OrderServiceImpl implements OrderService {
         return orderVO;
     }
 
-    /**
-     * 从购物车获得商品
-     *
-     * @param list
-     * @param specId
-     * @return
-     */
-    private ShopCartBO getShopCartBOFromList(List<ShopCartBO> list, String specId) {
-        for (ShopCartBO bo : list) {
-            if (bo.getSpecId().equals(specId)) {
-                return bo;
-            }
-        }
-        return null;
-    }
 }

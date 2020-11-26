@@ -1,5 +1,7 @@
 package com.leosanqing.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leosanqing.enums.YesOrNo;
 import com.leosanqing.pojo.Carousel;
 import com.leosanqing.pojo.Category;
@@ -15,12 +17,16 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.jackson.JsonObjectDeserializer;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -44,7 +50,7 @@ public class IndexController {
 
     @GetMapping("carousel")
     @ApiOperation(value = "获取首页了轮播图列表", notes = "获取首页轮播图列表", httpMethod = "GET")
-    public JSONResult carousel() {
+    public JSONResult carousel() throws IOException {
 
         /*
          * 轮播图失效时间：
@@ -58,7 +64,8 @@ public class IndexController {
             carousels = carouselService.queryAll(YesOrNo.YES.type);
             redisOperator.set("carousel", JsonUtils.objectToJson(carousels));
         } else {
-            carousels = JsonUtils.jsonToList(carouselStr, Carousel.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            carousels = objectMapper.readValue(carouselStr, new TypeReference<List<Carousel>>() {});
         }
 
         return JSONResult.ok(carousels);
@@ -68,7 +75,7 @@ public class IndexController {
 
     @GetMapping("cats")
     @ApiOperation(value = "获取一级目录所有节点", notes = "获取一级目录所有节点", httpMethod = "GET")
-    public JSONResult cats() {
+    public JSONResult cats() throws IOException {
 
         List<Category> categoryList;
 
@@ -77,7 +84,8 @@ public class IndexController {
             categoryList = categoryService.queryAllRootLevelCat();
             redisOperator.set("cats", JsonUtils.objectToJson(categoryList));
         } else {
-            categoryList = JsonUtils.jsonToList(catsStr, Category.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            categoryList = objectMapper.readValue(catsStr, new TypeReference<List<Category>>() {});
         }
         return JSONResult.ok(categoryList);
     }
@@ -86,7 +94,7 @@ public class IndexController {
     @ApiOperation(value = "获取商品子分类", notes = "获取商品子分类", httpMethod = "GET")
     public JSONResult subCats(
             @ApiParam(name = "rootCatId", value = "一级分类Id", required = true)
-            @PathVariable Integer rootCatId) {
+            @PathVariable Integer rootCatId) throws IOException {
         if (rootCatId == null) {
             return JSONResult.errorMsg("商品分类不存在");
         }
@@ -95,7 +103,7 @@ public class IndexController {
         final String subCatStr = redisOperator.get("subCat:" + rootCatId);
         if (StringUtils.isBlank(subCatStr)) {
             categoryVOList = categoryService.getSubCatList(rootCatId);
-            if (categoryVOList == null || categoryVOList.size() == 0) {
+            if (categoryVOList == null || categoryVOList.isEmpty()) {
                 redisOperator.set("subCat:" + rootCatId, JsonUtils.objectToJson(categoryVOList));
 
             } else {
@@ -103,7 +111,8 @@ public class IndexController {
 
             }
         } else {
-            categoryVOList = JsonUtils.jsonToList(subCatStr, CategoryVO.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            categoryVOList = objectMapper.readValue(subCatStr, new TypeReference<List<CategoryVO>>() {});
         }
         return JSONResult.ok(categoryVOList);
     }

@@ -2,7 +2,6 @@ package com.leosanqing.controller;
 
 import com.leosanqing.pojo.UserAddress;
 import com.leosanqing.pojo.bo.AddressBO;
-import com.leosanqing.pojo.bo.ShopCartBO;
 import com.leosanqing.service.AddressService;
 import com.leosanqing.utils.JSONResult;
 import com.leosanqing.utils.MobileEmailUtils;
@@ -14,8 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -23,7 +20,7 @@ import java.util.List;
  * @Date: 2019-12-12 07:59
  */
 @RestController
-@RequestMapping("address")
+@RequestMapping("/api/v1/address")
 @Api(value = "地址相关接口api", tags = {"查询地址相关"})
 @Slf4j
 public class AddressController {

@@ -1,9 +1,11 @@
 package com.leosanqing.controller.center;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.leosanqing.enums.YesOrNo;
 import com.leosanqing.pojo.OrderItems;
 import com.leosanqing.pojo.Orders;
 import com.leosanqing.pojo.bo.center.OrderItemsCommentBO;
+import com.leosanqing.pojo.vo.MyCommentVO;
 import com.leosanqing.service.center.MyCommentsService;
 import com.leosanqing.service.center.MyOrdersService;
 import com.leosanqing.utils.JSONResult;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -28,10 +31,10 @@ import java.util.List;
 @RestController
 @RequestMapping("api/vi/mycomments")
 public class MyCommentsController {
-    @Autowired
+    @Resource
     private MyCommentsService myCommentsService;
 
-    @Autowired
+    @Resource
     private MyOrdersService myOrdersService;
 
     @PostMapping("pending")
@@ -45,7 +48,6 @@ public class MyCommentsController {
     ) {
         final JSONResult result = checkUserOrder(userId, orderId);
         if (result.getStatus() != HttpStatus.OK.value()) {
-
             return result;
         }
 
@@ -73,10 +75,8 @@ public class MyCommentsController {
         if(StringUtils.isBlank(userId)){
             return JSONResult.errorMsg("用户Id为空");
         }
-
-
-        final PagedGridResult result = myCommentsService.queryMyComments(userId, page, pageSize);
-        return JSONResult.ok(result);
+        IPage<MyCommentVO> myCommentVOIPage = myCommentsService.queryMyComments(userId, page, pageSize);
+        return JSONResult.ok(myCommentVOIPage);
     }
 
 

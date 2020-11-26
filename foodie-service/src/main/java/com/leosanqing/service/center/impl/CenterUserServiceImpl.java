@@ -1,5 +1,6 @@
 package com.leosanqing.service.center.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leosanqing.mapper.UsersMapper;
 import com.leosanqing.pojo.Users;
 import com.leosanqing.pojo.bo.center.CenterUserBO;
@@ -19,15 +20,11 @@ import java.util.Date;
  * @Description: TODO
  */
 @Service
-public class CenterUserServiceImpl implements CenterUserService {
-
-    @Autowired
-    private UsersMapper usersMapper;
+public class CenterUserServiceImpl extends ServiceImpl<UsersMapper, Users> implements CenterUserService {
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public Users queryUserInfo(String userId) {
-        final Users users = usersMapper.selectByPrimaryKey(userId);
+        Users users = baseMapper.selectById(userId);
         users.setPassword(null);
         return users;
     }
@@ -36,10 +33,10 @@ public class CenterUserServiceImpl implements CenterUserService {
     @Transactional(propagation = Propagation.REQUIRED)
     public Users updateUserInfo(String userId, CenterUserBO centerUserBO) {
         final Users users = new Users();
-        BeanUtils.copyProperties(centerUserBO,users);
+        BeanUtils.copyProperties(centerUserBO, users);
         users.setId(userId);
         users.setUpdatedTime(new Date());
-        usersMapper.updateByPrimaryKeySelective(users);
+        baseMapper.updateById(users);
 
         return queryUserInfo(userId);
     }
@@ -51,7 +48,7 @@ public class CenterUserServiceImpl implements CenterUserService {
         users.setId(userId);
         users.setFace(faceUrl);
         users.setUpdatedTime(new Date());
-        usersMapper.updateByPrimaryKeySelective(users);
+        baseMapper.updateById(users);
 
         return queryUserInfo(userId);
 

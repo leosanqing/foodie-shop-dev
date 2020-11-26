@@ -21,7 +21,7 @@ public interface OrderService {
      * @param shopCartBOList
      * @return
      */
-    OrderVO createOrder(List<ShopCartBO> shopCartBOList, SubmitOrderBO submitOrderBO);
+    OrderVO createOrder(List<ShopCartBO> shopCartBOList, SubmitOrderBO submitOrderBO) throws InterruptedException;
 
 
     /**

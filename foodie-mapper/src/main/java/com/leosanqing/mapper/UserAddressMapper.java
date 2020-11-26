@@ -1,7 +1,10 @@
 package com.leosanqing.mapper;
 
-import com.leosanqing.my.mapper.MyMapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.leosanqing.pojo.UserAddress;
 
-public interface UserAddressMapper extends MyMapper<UserAddress> {
+/**
+ * @author zhuerchong
+ */
+public interface UserAddressMapper extends BaseMapper<UserAddress> {
 }

@@ -1,5 +1,6 @@
 package com.leosanqing.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leosanqing.enums.Sex;
 import com.leosanqing.mapper.UsersMapper;
 import com.leosanqing.pojo.Users;
@@ -12,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
 
@@ -21,61 +21,52 @@ import java.util.Date;
  * @Date: 2019-12-06 00:16
  */
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements UserService {
 
-    private static final String FACE_PATH = "http://122.152.205.72:88/group1/M00/00/05/CpoxxFw_8_qAllFXAAAclhVPdSg994.png";
-
-    @Autowired
-    private UsersMapper usersMapper;
+    private static final String FACE_PATH = "http://122.152.205.72:88/group1/M00/00/05/CpoxxFw_8_qAllFXAAAclhVPdSg994" +
+            ".png";
 
     @Autowired
     private Sid sid;
 
-
     @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public boolean queryUsernameIsExist(String username) {
-        Example userExample = new Example(Users.class);
-        Example.Criteria criteria = userExample.createCriteria();
-        criteria.andEqualTo("username", username);
-        return usersMapper.selectOneByExample(userExample) != null;
+        return lambdaQuery()
+                .eq(Users::getUsername, username)
+                .one() != null;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Users createUser(UserBO userBO) {
-
-        Users users = new Users();
-        users.setId(sid.nextShort());
-        users.setUsername(userBO.getUsername());
+        Users users = null;
         try {
-            users.setPassword(MD5Utils.getMD5Str(userBO.getPassword()));
+            users = Users.builder()
+                    .id(sid.nextShort())
+                    .username(userBO.getUsername())
+                    .password(MD5Utils.getMD5Str(userBO.getPassword()))
+                    .face(FACE_PATH)
+                    .birthday(DateUtil.stringToDate("1900-01-01"))
+                    .nickname(userBO.getUsername())
+                    .sex(Sex.SECRET.type)
+                    .createdTime(new Date())
+                    .updatedTime(new Date())
+                    .build();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("创建用户失败,error{}",e);
         }
-        users.setBirthday(DateUtil.stringToDate("1900-01-01"));
-        users.setFace(FACE_PATH);
-        users.setNickname(userBO.getUsername());
-        users.setSex(Sex.SECRET.type);
-        users.setCreatedTime(new Date());
-        users.setUpdatedTime(new Date());
-
-
-        usersMapper.insert(users);
+        baseMapper.insert(users);
         return users;
     }
 
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public Users queryUsersForLogin(String username, String password){
-        Example example = new Example(Users.class);
-        Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("username",username);
-        criteria.andEqualTo("password",password);
-
-        Users users = usersMapper.selectOneByExample(example);
-        return users;
-
+    public Users queryUsersForLogin(String username, String password) throws Exception {
+        return lambdaQuery()
+                .eq(Users::getUsername, username)
+                .eq(Users::getPassword, MD5Utils.getMD5Str(password))
+                .one();
     }
 }

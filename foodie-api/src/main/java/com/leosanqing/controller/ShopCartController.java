@@ -1,6 +1,9 @@
 package com.leosanqing.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leosanqing.pojo.bo.ShopCartBO;
+import com.leosanqing.pojo.vo.CategoryVO;
 import com.leosanqing.utils.JSONResult;
 import com.leosanqing.utils.JsonUtils;
 import com.leosanqing.utils.RedisOperator;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +27,7 @@ import java.util.Optional;
  * @Date: 2019-12-12 07:59
  */
 @RestController
-@RequestMapping("shop_cart")
+@RequestMapping("api/v1/shop_cart")
 @Api(value = "购物车相关接口api", tags = {"用于购物车相关操作"})
 public class ShopCartController extends BaseController{
 
@@ -39,7 +43,7 @@ public class ShopCartController extends BaseController{
             @RequestBody ShopCartBO shopCartBO
 //            HttpServletRequest request,
 //            HttpServletResponse response
-    ) {
+    ) throws IOException {
         if (StringUtils.isBlank(userId)) {
             return JSONResult.errorMsg("用户名id为空");
         }
@@ -55,7 +59,8 @@ public class ShopCartController extends BaseController{
             shopCartBOList.add(shopCartBO);
 
         } else {
-            shopCartBOList = JsonUtils.jsonToList(shopCartStr, ShopCartBO.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            shopCartBOList = objectMapper.readValue(shopCartStr, new TypeReference<List<ShopCartBO>>() {});
 
             boolean isExist = false;
 
@@ -87,7 +92,7 @@ public class ShopCartController extends BaseController{
             @RequestBody String itemSpecId,
             HttpServletRequest request,
             HttpServletResponse response
-    ) {
+    ) throws IOException {
         if (StringUtils.isBlank(userId) || StringUtils.isBlank(itemSpecId)) {
             return JSONResult.errorMsg("参数不能为空");
         }
@@ -96,7 +101,8 @@ public class ShopCartController extends BaseController{
         //  前端用户在登录情况下，删除商品到购物车，会同步数据到redis
         final String shopCartStr = redisOperator.get(SHOP_CART + ":" + userId);
         if (StringUtils.isNotBlank(shopCartStr)) {
-            final List<ShopCartBO> shopCartBOList = JsonUtils.jsonToList(shopCartStr, ShopCartBO.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<ShopCartBO> shopCartBOList = objectMapper.readValue(shopCartStr, new TypeReference<List<ShopCartBO>>() {});
             if (shopCartBOList != null) {
                 for (ShopCartBO cartBO : shopCartBOList) {
                     if (cartBO.getSpecId().equals(itemSpecId)) {
