@@ -1,6 +1,9 @@
 package com.leosanqing.service.center;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.leosanqing.pojo.OrderStatus;
 import com.leosanqing.pojo.Orders;
+import com.leosanqing.pojo.vo.MyOrdersVO;
 import com.leosanqing.pojo.vo.OrderStatusCountsVO;
 import com.leosanqing.utils.PagedGridResult;
 
@@ -21,10 +24,7 @@ public interface MyOrdersService {
      * @param pageSize
      * @return
      */
-    PagedGridResult queryMyOrders(String userId,
-                                  Integer orderStatus,
-                                  Integer page,
-                                  Integer pageSize);
+    IPage<MyOrdersVO> queryMyOrders(String userId, Integer orderStatus, Integer page, Integer pageSize);
 
     /**
      * @Description: 订单状态 --> 商家发货
@@ -63,7 +63,5 @@ public interface MyOrdersService {
      */
     OrderStatusCountsVO getOrderStatusCount(String userId);
 
-    PagedGridResult getMyOrderTrend(String userId,
-                    Integer page,
-                    Integer pageSize);
+    IPage<OrderStatus> getMyOrderTrend(String userId, Integer page, Integer pageSize);
 }

@@ -1,6 +1,9 @@
 package com.leosanqing.controller.center;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.leosanqing.pojo.OrderStatus;
 import com.leosanqing.pojo.Orders;
+import com.leosanqing.pojo.vo.MyOrdersVO;
 import com.leosanqing.pojo.vo.OrderStatusCountsVO;
 import com.leosanqing.service.center.MyOrdersService;
 import com.leosanqing.utils.JSONResult;
@@ -43,8 +46,8 @@ public class MyOrdersController {
             return JSONResult.errorMsg("用户名id为空");
         }
 
-        final PagedGridResult pagedGridResult = myOrdersService.queryMyOrders(userId, orderStatus, page, pageSize);
-        return JSONResult.ok(pagedGridResult);
+        IPage<MyOrdersVO> myOrdersVOIPage = myOrdersService.queryMyOrders(userId, orderStatus, page, pageSize);
+        return JSONResult.ok(myOrdersVOIPage);
     }
 
 
@@ -62,8 +65,8 @@ public class MyOrdersController {
             return JSONResult.errorMsg("用户名id为空");
         }
 
-        final PagedGridResult pagedGridResult = myOrdersService.getMyOrderTrend(userId, page, pageSize);
-        return JSONResult.ok(pagedGridResult);
+        IPage<OrderStatus> myOrderTrend = myOrdersService.getMyOrderTrend(userId, page, pageSize);
+        return JSONResult.ok(myOrderTrend);
     }
 
 

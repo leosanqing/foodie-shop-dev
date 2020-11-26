@@ -33,6 +33,6 @@ public interface UserService {
      * @param password
      * @return
      */
-    Users queryUsersForLogin(String username, String password);
+    Users queryUsersForLogin(String username, String password) throws Exception;
 
 }

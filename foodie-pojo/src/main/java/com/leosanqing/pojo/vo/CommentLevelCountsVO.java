@@ -1,5 +1,6 @@
 package com.leosanqing.pojo.vo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
@@ -9,8 +10,8 @@ import lombok.Data;
  * 商品 评价VO
  */
 @Data
+@AllArgsConstructor
 public class CommentLevelCountsVO {
-
     private Integer totalCounts;
     private Integer goodCounts;
     private Integer normalCounts;

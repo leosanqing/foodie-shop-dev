@@ -1,8 +1,11 @@
 package com.leosanqing.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leosanqing.pojo.OrderStatus;
 import com.leosanqing.pojo.bo.ShopCartBO;
 import com.leosanqing.pojo.bo.SubmitOrderBO;
+import com.leosanqing.pojo.vo.CategoryVO;
 import com.leosanqing.pojo.vo.OrderVO;
 import com.leosanqing.service.OrderService;
 import com.leosanqing.utils.CookieUtils;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -27,7 +31,7 @@ import java.util.List;
  * @Description: 订单相关Controller
  */
 @RestController
-@RequestMapping("orders")
+@RequestMapping("api/v1/orders")
 @Api(value = "订单相关", tags = {"订单的相关接口"})
 public class OrderController extends BaseController{
 
@@ -43,13 +47,14 @@ public class OrderController extends BaseController{
             @ApiParam(name = "submitOrderBO", value = "订单对象", required = true)
             @RequestBody SubmitOrderBO submitOrderBO,
             HttpServletRequest request,
-            HttpServletResponse response) {
+            HttpServletResponse response) throws InterruptedException, IOException {
 
         final String shopCartStr = redisOperator.get(SHOP_CART + ":" + submitOrderBO.getUserId());
         if(StringUtils.isNotBlank(shopCartStr)){
             return JSONResult.errorMsg("购物车数据不正确");
         }
-        List<ShopCartBO> shopCartBOList = JsonUtils.jsonToList(shopCartStr, ShopCartBO.class);
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<ShopCartBO> shopCartBOList = objectMapper.readValue(shopCartStr, new TypeReference<List<ShopCartBO>>() {});
 
         // 1.创建订单
         OrderVO orderVO = orderService.createOrder(shopCartBOList,submitOrderBO);

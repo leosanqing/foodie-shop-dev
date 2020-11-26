@@ -1,24 +1,102 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.leosanqing.mapper.OrdersMapper" >
-  <resultMap id="BaseResultMap" type="com.leosanqing.pojo.Orders" >
-    <!--
-      WARNING - @mbg.generated
-    -->
-    <id column="id" property="id" jdbcType="VARCHAR" />
-    <result column="user_id" property="userId" jdbcType="VARCHAR" />
-    <result column="receiver_name" property="receiverName" jdbcType="VARCHAR" />
-    <result column="receiver_mobile" property="receiverMobile" jdbcType="VARCHAR" />
-    <result column="receiver_address" property="receiverAddress" jdbcType="VARCHAR" />
-    <result column="total_amount" property="totalAmount" jdbcType="INTEGER" />
-    <result column="real_pay_amount" property="realPayAmount" jdbcType="INTEGER" />
-    <result column="post_amount" property="postAmount" jdbcType="INTEGER" />
-    <result column="pay_method" property="payMethod" jdbcType="INTEGER" />
-    <result column="left_msg" property="leftMsg" jdbcType="VARCHAR" />
-    <result column="extand" property="extand" jdbcType="VARCHAR" />
-    <result column="is_comment" property="isComment" jdbcType="INTEGER" />
-    <result column="is_delete" property="isDelete" jdbcType="INTEGER" />
-    <result column="created_time" property="createdTime" jdbcType="TIMESTAMP" />
-    <result column="updated_time" property="updatedTime" jdbcType="TIMESTAMP" />
-  </resultMap>
+<mapper namespace="com.leosanqing.mapper.OrdersMapper">
+    <resultMap id="BaseResultMap" type="com.leosanqing.pojo.Orders">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="receiver_name" property="receiverName" jdbcType="VARCHAR"/>
+        <result column="receiver_mobile" property="receiverMobile" jdbcType="VARCHAR"/>
+        <result column="receiver_address" property="receiverAddress" jdbcType="VARCHAR"/>
+        <result column="total_amount" property="totalAmount" jdbcType="INTEGER"/>
+        <result column="real_pay_amount" property="realPayAmount" jdbcType="INTEGER"/>
+        <result column="post_amount" property="postAmount" jdbcType="INTEGER"/>
+        <result column="pay_method" property="payMethod" jdbcType="INTEGER"/>
+        <result column="left_msg" property="leftMsg" jdbcType="VARCHAR"/>
+        <result column="extend" property="extend" jdbcType="VARCHAR"/>
+        <result column="is_comment" property="isComment" jdbcType="INTEGER"/>
+        <result column="is_delete" property="isDelete" jdbcType="INTEGER"/>
+        <result column="created_time" property="createdTime" jdbcType="TIMESTAMP"/>
+        <result column="updated_time" property="updatedTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="queryMyOrders" resultType="com.leosanqing.pojo.vo.MyOrdersVO">
+        SELECT
+        od.id as orderId,
+        od.created_time as createdTime,
+        od.pay_method as payMethod,
+        od.real_pay_amount as realPayAmount,
+        od.post_amount as postAmount,
+        os.order_status as orderStatus,
+        oi.item_id as itemId,
+        oi.item_name as itemName,
+        oi.item_img as itemImg,
+        oi.item_spec_name as itemSpecName,
+        oi.buy_counts as buyCounts,
+        oi.price as price,
+        od.is_comment as isComment
+        FROM
+        orders od
+        LEFT JOIN
+        order_status os ON od.id = os.order_id
+        LEFT JOIN
+        order_items oi ON od.id = oi.order_id
+        WHERE
+        od.user_id = #{userId}
+        AND
+        od.is_delete = 0
+        <if test="orderStatus != null">
+            and os.order_status = #{orderStatus}
+        </if>
+        ORDER BY od.updated_time ASC
+    </select>
+
+
+    <select id="getMyOrderTrend" parameterType="Map" resultType="com.leosanqing.pojo.OrderStatus">
+        SELECT
+            os.order_id as orderId,
+            os.order_status as orderStatus,
+            os.created_time as createdTime,
+            os.pay_time as payTime,
+            os.deliver_time as deliverTime,
+            os.success_time as successTime,
+            os.close_time as closeTime,
+            os.comment_time as commentTime
+        FROM
+          orders o
+        LEFT JOIN
+          order_status os
+        on
+          o.id = os.order_id
+        WHERE
+          o.is_delete = 0
+        AND
+          o.user_id = #{paramsMap.userId}
+        AND
+          os.order_status in (20, 30, 40)
+        ORDER BY
+          os.order_id
+        DESC
+    </select>
+
+
+    <select id="getMyOrderStatusCounts" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM
+        orders o
+        LEFT JOIN
+        order_status os on o.id = os.order_id
+        WHERE
+        o.user_id = #{paramsMap.userId}
+        AND
+        os.order_status = #{paramsMap.orderStatus}
+        <if test="paramsMap.isComment != null">
+            and o.is_comment = #{paramsMap.isComment}
+        </if>
+
+    </select>
 </mapper>

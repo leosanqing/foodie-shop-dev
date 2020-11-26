@@ -1,9 +1,12 @@
 package com.leosanqing.service.center.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leosanqing.enums.YesOrNo;
-import com.leosanqing.mapper.ItemsCommentsMapperCustom;
+import com.leosanqing.mapper.ItemsCommentsMapper;
 import com.leosanqing.mapper.OrderItemsMapper;
 import com.leosanqing.mapper.OrderStatusMapper;
 import com.leosanqing.mapper.OrdersMapper;
@@ -13,13 +16,12 @@ import com.leosanqing.pojo.Orders;
 import com.leosanqing.pojo.bo.center.OrderItemsCommentBO;
 import com.leosanqing.pojo.vo.MyCommentVO;
 import com.leosanqing.service.center.MyCommentsService;
-import com.leosanqing.utils.PagedGridResult;
 import org.n3r.idworker.Sid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,38 +34,34 @@ import java.util.List;
  */
 
 @Service
-public class MyCommentsServiceImpl implements MyCommentsService {
+public class MyCommentsServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements MyCommentsService {
 
-    @Autowired
+    @Resource
     private OrderItemsMapper orderItemsMapper;
 
-    @Autowired
+    @Resource
+    private ItemsCommentsMapper itemsCommentsMapper;
+
+    @Resource
     private OrdersMapper ordersMapper;
 
-    @Autowired
-    private ItemsCommentsMapperCustom itemsCommentsMapperCustom;
-
-    @Autowired
+    @Resource
     private OrderStatusMapper orderStatusMapper;
 
-    @Autowired
+    @Resource
     private Sid sid;
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public List<OrderItems> queryPendingComment(String orderId) {
-
-        final OrderItems orderItems = new OrderItems();
-        orderItems.setOrderId(orderId);
-
-        return orderItemsMapper.select(orderItems);
+        return orderItemsMapper.selectList(
+                Wrappers.lambdaQuery(OrderItems.class)
+                        .eq(OrderItems::getOrderId, orderId)
+        );
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void saveComments(String userId, String orderId, List<OrderItemsCommentBO> orderItemList) {
-
-
         // 1.保存订单评价 item_comments
         for (OrderItemsCommentBO item : orderItemList) {
             item.setCommentId(sid.nextShort());
@@ -73,43 +71,34 @@ public class MyCommentsServiceImpl implements MyCommentsService {
         map.put("userId",userId);
         map.put("commentList",orderItemList);
 
-        itemsCommentsMapperCustom.saveComments(map);
-
+        itemsCommentsMapper.saveComments(map);
 
         // 2.修改订单 Orders
         final Orders orders = new Orders();
         orders.setIsComment(YesOrNo.YES.type);
         orders.setId(orderId);
-        ordersMapper.updateByPrimaryKeySelective(orders);
+        baseMapper.updateById(orders);
 
         // 3. 修改订单状态的  commentTime
         final OrderStatus orderStatus = new OrderStatus();
         orderStatus.setCommentTime(new Date());
         orderStatus.setOrderId(orderId);
-        orderStatusMapper.updateByPrimaryKeySelective(orderStatus);
-
-
+        orderStatusMapper.updateById(orderStatus);
     }
+
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public PagedGridResult queryMyComments(String userId, Integer page, Integer pageSize) {
-
-        final HashMap<String, Object> map = new HashMap<>();
-        map.put("userId",userId);
-
-        PageHelper.startPage(page,pageSize);
-        final List<MyCommentVO> myCommentVOS = itemsCommentsMapperCustom.queryMyComments(map);
-        return  setterPage(myCommentVOS,page);
+    public IPage<MyCommentVO> queryMyComments(String userId, Integer page, Integer pageSize) {
+        return itemsCommentsMapper.queryMyComments(userId, new Page<>(page, pageSize));
     }
 
-    private PagedGridResult setterPage(List<?> list, int page) {
-        PageInfo<?> pageList = new PageInfo<>(list);
-        PagedGridResult grid = new PagedGridResult();
-        grid.setPage(page);
-        grid.setRows(list);
-        grid.setTotal(pageList.getPages());
-        grid.setRecords(pageList.getTotal());
-        return grid;
-    }
+//    private PagedGridResult setterPage(List<?> list, int page) {
+//        PageInfo<?> pageList = new PageInfo<>(list);
+//        PagedGridResult grid = new PagedGridResult();
+//        grid.setPage(page);
+//        grid.setRows(list);
+//        grid.setTotal(pageList.getPages());
+//        grid.setRecords(pageList.getTotal());
+//        return grid;
+//    }
 
 }

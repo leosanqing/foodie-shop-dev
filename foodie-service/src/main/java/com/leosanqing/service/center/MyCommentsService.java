@@ -1,5 +1,6 @@
 package com.leosanqing.service.center;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.leosanqing.pojo.OrderItems;
 import com.leosanqing.pojo.bo.center.OrderItemsCommentBO;
 import com.leosanqing.pojo.vo.MyCommentVO;
@@ -38,5 +39,5 @@ public interface MyCommentsService {
      * @param pageSize
      * @return
      */
-    PagedGridResult queryMyComments(String userId, Integer page, Integer pageSize);
+    IPage<MyCommentVO> queryMyComments(String userId, Integer page, Integer pageSize);
 }

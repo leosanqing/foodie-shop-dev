@@ -1,8 +1,9 @@
 package com.leosanqing.service.center.impl;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.leosanqing.enums.OrderStatusEnum;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leosanqing.enums.YesOrNo;
 import com.leosanqing.mapper.OrderStatusMapper;
 import com.leosanqing.mapper.OrdersMapper;
@@ -12,17 +13,14 @@ import com.leosanqing.pojo.Orders;
 import com.leosanqing.pojo.vo.MyOrdersVO;
 import com.leosanqing.pojo.vo.OrderStatusCountsVO;
 import com.leosanqing.service.center.MyOrdersService;
-import com.leosanqing.utils.JSONResult;
-import com.leosanqing.utils.PagedGridResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import tk.mybatis.mapper.entity.Example;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: leosanqing
@@ -31,139 +29,103 @@ import java.util.List;
  * @Description: 我的订单相关服务实现
  */
 @Service
-public class MyOrdersServiceImpl implements MyOrdersService {
+public class MyOrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements MyOrdersService {
 
-    @Autowired
+    @Resource
     private OrdersMapperCustom ordersMapperCustom;
 
-    @Autowired
+    @Resource
     private OrderStatusMapper orderStatusMapper;
-
-    @Autowired
-    private OrdersMapper ordersMapper;
-
 
     @Override
     @Transactional(propagation = Propagation.SUPPORTS)
-    public PagedGridResult queryMyOrders(String userId, Integer orderStatus, Integer page, Integer pageSize) {
-        final HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("userId", userId);
-        if (orderStatus != null) {
-            hashMap.put("orderStatus", orderStatus);
-        }
-
-        PageHelper.startPage(page, pageSize);
-        final List<MyOrdersVO> myOrdersVOS = ordersMapperCustom.queryMyOrders(hashMap);
-
-
-        return setterPage(myOrdersVOS, page);
-    }
-
-    private PagedGridResult setterPage(List<?> list, int page) {
-        PageInfo<?> pageList = new PageInfo<>(list);
-        PagedGridResult grid = new PagedGridResult();
-        grid.setPage(page);
-        grid.setRows(list);
-        grid.setTotal(pageList.getPages());
-        grid.setRecords(pageList.getTotal());
-        return grid;
+    public IPage<MyOrdersVO> queryMyOrders(String userId, Integer orderStatus, Integer page, Integer pageSize) {
+        return baseMapper.queryMyOrders(userId, orderStatus, new Page<>(page, pageSize));
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     @Override
     public void updateDeliverOrderStatus(String orderId) {
-
         OrderStatus updateOrder = new OrderStatus();
-        updateOrder.setOrderStatus(OrderStatusEnum.WAIT_RECEIVE.type);
+        updateOrder.setOrderStatus(OrderStatus.OrderStatusEnum.WAIT_RECEIVE.type);
         updateOrder.setDeliverTime(new Date());
 
-        Example example = new Example(OrderStatus.class);
-        Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("orderId", orderId);
-        criteria.andEqualTo("orderStatus", OrderStatusEnum.WAIT_DELIVER.type);
-
-        orderStatusMapper.updateByExampleSelective(updateOrder, example);
+        orderStatusMapper.update(
+                updateOrder,
+                Wrappers.lambdaUpdate(OrderStatus.class)
+                        .eq(OrderStatus::getOrderId, orderId)
+                        .eq(OrderStatus::getOrderStatus, OrderStatus.OrderStatusEnum.WAIT_DELIVER.type)
+        );
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean deleteOrder(String userId, String orderId) {
+        Orders updateOrder = new Orders();
+        updateOrder.setIsDelete(YesOrNo.YES.type);
+        updateOrder.setUpdatedTime(new Date());
 
-        final Orders orders = new Orders();
-        orders.setIsDelete(YesOrNo.YES.type);
-        orders.setUpdatedTime(new Date());
-
-        final Example example = new Example(Orders.class);
-        final Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("userId", userId);
-        criteria.andEqualTo("id", orderId);
-
-        final int result = ordersMapper.updateByExampleSelective(orders, example);
-        return result == 1;
+        return lambdaUpdate()
+                .eq(Orders::getId, orderId)
+                .eq(Orders::getUserId, userId)
+                .update();
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean confirmReceive(String orderId) {
-        final OrderStatus orderStatus = new OrderStatus();
-        orderStatus.setOrderStatus(OrderStatusEnum.SUCCESS.type);
-        orderStatus.setSuccessTime(new Date());
+        OrderStatus updateOrder = new OrderStatus();
+        updateOrder.setOrderStatus(OrderStatus.OrderStatusEnum.SUCCESS.type);
+        updateOrder.setSuccessTime(new Date());
 
-        final Example example = new Example(OrderStatus.class);
-        final Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("orderId", orderId);
-        criteria.andEqualTo("orderStatus", OrderStatusEnum.WAIT_RECEIVE.type);
-
-        final int result = orderStatusMapper.updateByExampleSelective(orderStatus, example);
-
-
-        return result == 1;
-
+        return 1 == orderStatusMapper.update(
+                updateOrder,
+                Wrappers.lambdaUpdate(OrderStatus.class)
+                        .eq(OrderStatus::getOrderId, orderId)
+                        .eq(OrderStatus::getOrderStatus, OrderStatus.OrderStatusEnum.WAIT_RECEIVE.type)
+        );
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public Orders queryMyOrder(String userId, String orderId) {
-        final Orders orders = new Orders();
-        orders.setUserId(userId);
-        orders.setId(orderId);
-        orders.setIsDelete(YesOrNo.NO.type);
-        return ordersMapper.selectOne(orders);
+        return lambdaQuery()
+                .eq(Orders::getId, orderId)
+                .eq(Orders::getUserId, userId)
+                .eq(Orders::getIsDelete, YesOrNo.NO.type)
+                .one();
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public OrderStatusCountsVO getOrderStatusCount(String userId) {
 
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("userId",userId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
 
-        map.put("orderStatus",OrderStatusEnum.WAIT_PAY.type);
-        final int waitPayCount = ordersMapperCustom.getMyOrderStatusCounts(map);
+        map.put("orderStatus", OrderStatus.OrderStatusEnum.WAIT_PAY.type);
 
-        map.put("orderStatus",OrderStatusEnum.WAIT_DELIVER.type);
-        final int waitDeliverCount = ordersMapperCustom.getMyOrderStatusCounts(map);
+        int waitPayCounts = baseMapper.getMyOrderStatusCounts(map);
 
-        map.put("orderStatus",OrderStatusEnum.WAIT_RECEIVE.type);
-        final int waitReceiveCount = ordersMapperCustom.getMyOrderStatusCounts(map);
+        map.put("orderStatus", OrderStatus.OrderStatusEnum.WAIT_DELIVER.type);
+        int waitDeliverCounts = baseMapper.getMyOrderStatusCounts(map);
 
-        map.put("orderStatus",OrderStatusEnum.SUCCESS.type);
-        map.put("isComment",YesOrNo.NO.type);
-        final int waitCommentCount = ordersMapperCustom.getMyOrderStatusCounts(map);
+        map.put("orderStatus", OrderStatus.OrderStatusEnum.WAIT_RECEIVE.type);
+        int waitReceiveCounts = baseMapper.getMyOrderStatusCounts(map);
 
-        final OrderStatusCountsVO orderStatusCountsVO = new OrderStatusCountsVO(waitPayCount, waitDeliverCount, waitReceiveCount, waitCommentCount);
-        return orderStatusCountsVO;
+        map.put("orderStatus", OrderStatus.OrderStatusEnum.SUCCESS.type);
+        map.put("isComment", YesOrNo.NO.type);
+
+        int waitCommentCounts = baseMapper.getMyOrderStatusCounts(map);
+
+        return new OrderStatusCountsVO(
+                waitPayCounts,
+                waitDeliverCounts,
+                waitReceiveCounts,
+                waitCommentCounts
+        );
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public PagedGridResult getMyOrderTrend(String userId, Integer page, Integer pageSize) {
-        final HashMap<String, Object> map = new HashMap<>();
-        map.put("userId",userId);
-
-        PageHelper.startPage(page,pageSize);
-        final List<OrderStatus> myOrderTrend = ordersMapperCustom.getMyOrderTrend(map);
-
-        return setterPage(myOrderTrend,page);
+    public IPage<OrderStatus> getMyOrderTrend(String userId, Integer page, Integer pageSize) {
+        return baseMapper.getMyOrderTrend(userId, new Page<>(page, pageSize));
     }
 }
