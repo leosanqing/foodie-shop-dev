@@ -70,7 +70,6 @@ public class PassportController extends BaseController {
         // 实现注册
         Users users = userService.createUser(userBO);
 
-
 //        Users userResult = setNullProperty(users);
 
         // 生成token，用于分布式会话
@@ -83,7 +82,6 @@ public class PassportController extends BaseController {
         syncShopCartData(users.getId(), request, response);
 
         return JSONResult.ok();
-
     }
 
 
@@ -129,9 +127,8 @@ public class PassportController extends BaseController {
      * @param request
      * @param response
      */
-    private void syncShopCartData(String userId, HttpServletRequest request,
-                                  HttpServletResponse response) {
-        /**
+    private void syncShopCartData(String userId, HttpServletRequest request, HttpServletResponse response) {
+        /*
          *  1. redis 为空，cookie 也为空。
          *                cookie 不为空，将 cookie的数据直接存入redis
          *  2. redis 不为空，cookie 为空，将redis数据覆盖cookie数据
