@@ -16,9 +16,11 @@ import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 /**
@@ -29,7 +31,8 @@ import java.util.List;
  */
 @Api(value = "我的订单-我的评价", tags = {"我的评价-用户中心展示的相关接口"})
 @RestController
-@RequestMapping("api/vi/mycomments")
+@RequestMapping("api/vi/mycomment")
+@Validated
 public class MyCommentsController {
     @Resource
     private MyCommentsService myCommentsService;
@@ -41,9 +44,9 @@ public class MyCommentsController {
     @ApiOperation(value = "查询我的订单", notes = "查询我的订单", httpMethod = "POST")
     public JSONResult pending(
             @ApiParam(name = "userId", value = "用户id")
-            @RequestParam String userId,
+            @RequestParam @NotBlank String userId,
             @ApiParam(name = "orderId", value = "订单Id")
-            @RequestParam String orderId
+            @RequestParam @NotBlank String orderId
 
     ) {
         final JSONResult result = checkUserOrder(userId, orderId);
@@ -65,16 +68,13 @@ public class MyCommentsController {
     @ApiOperation(value = "查询我的评价", notes = "查询我的评价", httpMethod = "POST")
     public JSONResult queryMyComment(
             @ApiParam(name = "userId", value = "用户id")
-            @RequestParam String userId,
+            @RequestParam @NotBlank String userId,
             @ApiParam(name = "page", value = "当前页数")
             @RequestParam(defaultValue = "1") Integer page,
             @ApiParam(name = "pageSize", value = "页面展示条数")
             @RequestParam(defaultValue = "10") Integer pageSize
 
     ) {
-        if(StringUtils.isBlank(userId)){
-            return JSONResult.errorMsg("用户Id为空");
-        }
         IPage<MyCommentVO> myCommentVOIPage = myCommentsService.queryMyComments(userId, page, pageSize);
         return JSONResult.ok(myCommentVOIPage);
     }
@@ -85,9 +85,9 @@ public class MyCommentsController {
     @ApiOperation(value = "保存评价列表", notes = "保存评价列表", httpMethod = "POST")
     public JSONResult saveList(
             @ApiParam(name = "userId", value = "用户id")
-            @RequestParam String userId,
+            @RequestParam @NotBlank String userId,
             @ApiParam(name = "orderId", value = "订单Id")
-            @RequestParam String orderId,
+            @RequestParam @NotBlank String orderId,
             @ApiParam(name = "orderItemList", value = "订单项列表")
             @RequestBody List<OrderItemsCommentBO> orderItemList
 
@@ -113,12 +113,6 @@ public class MyCommentsController {
      * @return
      */
     private JSONResult checkUserOrder(String userId, String orderId) {
-        if (StringUtils.isBlank(userId)) {
-            return JSONResult.errorMsg("用户ID不能为空");
-        }
-        if (StringUtils.isBlank(orderId)) {
-            return JSONResult.errorMsg("订单ID不能为空");
-        }
         final Orders orders = myOrdersService.queryMyOrder(userId, orderId);
         if (orders == null) {
             return JSONResult.errorMsg("查询到订单为空");

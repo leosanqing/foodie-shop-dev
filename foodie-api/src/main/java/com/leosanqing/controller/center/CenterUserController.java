@@ -17,12 +17,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +40,7 @@ import java.util.Map;
 @Api
 @RestController
 @RequestMapping("api/v1/userInfo")
+@Validated
 public class CenterUserController extends BaseController {
 //    public static final String USER_FACE_IMG_LOCATION =
 //            File.separator + "Users" +
@@ -58,19 +62,14 @@ public class CenterUserController extends BaseController {
     @ApiOperation(value = "更新用户信息", notes = "更新用户信息", httpMethod = "POST")
     public JSONResult updateUserInfo(
             @ApiParam(name = "userId", value = "用户id")
-            @RequestParam String userId,
+            @RequestParam @NotBlank String userId,
             @ApiParam(name = "centerUserBO", value = "用户中心bo")
             @RequestBody @Valid CenterUserBO centerUserBO,
             BindingResult result,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        if (StringUtils.isBlank(userId)) {
-            return JSONResult.errorMsg("用户名id为空");
-        }
-
         if (result.hasErrors()) {
-
             final Map<String, String> errorMap = getErrors(result);
             return JSONResult.errorMap(errorMap);
         }
@@ -92,21 +91,13 @@ public class CenterUserController extends BaseController {
     @ApiOperation(value = "查询用户信息", notes = "查询用户信息", httpMethod = "POST")
     public JSONResult queryUserInfo(
             @ApiParam(name = "userId", value = "用户id", required = true)
-            @RequestParam String userId,
+            @RequestParam @NotBlank String userId,
             @ApiParam(name = "file", value = "用户头像", required = true)
-                    MultipartFile file,
+                    @NotEmpty MultipartFile file,
             HttpServletRequest request,
             HttpServletResponse response
 
     ) {
-        if (StringUtils.isBlank(userId)) {
-            return JSONResult.errorMsg("用户名id为空");
-        }
-
-        if (file == null) {
-            return JSONResult.errorMsg("文件不能为空");
-        }
-
         String userFaceImgPrefix = File.separator + userId;
 
         final String filename = file.getOriginalFilename();
@@ -161,7 +152,6 @@ public class CenterUserController extends BaseController {
         CookieUtils.setCookie(request, response, "user",
                 JsonUtils.objectToJson(usersVO), true);
 
-
         return JSONResult.ok();
 
     }
@@ -176,30 +166,10 @@ public class CenterUserController extends BaseController {
         final List<FieldError> fieldErrors = result.getFieldErrors();
         for (FieldError fieldError : fieldErrors) {
             String errorField = fieldError.getField();
-            final String defaultMessage = fieldError.getDefaultMessage();
+             String defaultMessage = fieldError.getDefaultMessage();
             map.put(errorField, defaultMessage);
         }
 
-
         return map;
-    }
-
-
-    /**
-     * 将用户的部分信息设置为空，保护隐私
-     *
-     * @param users
-     * @return
-     */
-    private Users setNullProperty(Users users) {
-        users.setUpdatedTime(null);
-        users.setCreatedTime(null);
-        users.setBirthday(null);
-        users.setMobile(null);
-        users.setRealname(null);
-        users.setEmail(null);
-        users.setPassword(null);
-
-        return users;
     }
 }

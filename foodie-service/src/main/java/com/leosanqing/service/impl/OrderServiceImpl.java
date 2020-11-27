@@ -41,9 +41,6 @@ import java.util.Optional;
 public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements OrderService {
 
     @Resource
-    private OrdersMapper ordersMapper;
-
-    @Resource
     private AddressService addressService;
 
     @Resource
@@ -137,7 +134,7 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
          */
         orders.setTotalAmount(0);
         orders.setRealPayAmount(0);
-        ordersMapper.insert(orders);
+        baseMapper.insert(orders);
 
 
         // 2.1 循环根据商品规格表，保存到商品规格表
@@ -191,7 +188,7 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
 
         // 因为 userId 是分片项.不能修改，所以在更新时设置成 null
         orders.setUserId(null);
-        ordersMapper.updateById(orders);
+        baseMapper.updateById(orders);
 
 //        ordersMapper.insert(orders);
 

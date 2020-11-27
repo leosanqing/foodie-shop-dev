@@ -17,10 +17,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.IOException;
 import java.util.List;
 
@@ -33,6 +36,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/orders")
 @Api(value = "订单相关", tags = {"订单的相关接口"})
+@Validated
 public class OrderController extends BaseController{
 
     @Autowired
@@ -45,7 +49,7 @@ public class OrderController extends BaseController{
     @ApiOperation(value = "创建订单", notes = "创建订单", httpMethod = "POST")
     public JSONResult create(
             @ApiParam(name = "submitOrderBO", value = "订单对象", required = true)
-            @RequestBody SubmitOrderBO submitOrderBO,
+            @RequestBody @Valid SubmitOrderBO submitOrderBO,
             HttpServletRequest request,
             HttpServletResponse response) throws InterruptedException, IOException {
 
@@ -75,10 +79,9 @@ public class OrderController extends BaseController{
 
     }
 
-
     @GetMapping("paid_order_info")
     @ApiOperation(value = "查询支付状态", notes = "查询支付状态", httpMethod = "POST")
-    public JSONResult getPaidOrderInfo(String orderId) {
+    public JSONResult getPaidOrderInfo(@RequestParam @NotBlank String orderId) {
         OrderStatus orderStatus = orderService.queryOrderStatusInfo(orderId);
         return JSONResult.ok(orderStatus);
     }
