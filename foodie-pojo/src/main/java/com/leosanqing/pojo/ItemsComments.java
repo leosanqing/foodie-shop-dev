@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
 
 @Table(name = "items_comments")
@@ -47,8 +49,8 @@ public class ItemsComments {
     /**
      * 规格名称 可为空
      */
-    @Column(name = "sepc_name")
-    private String sepcName;
+    @Column(name = "spec_name")
+    private String specName;
 
     /**
      * 评价等级 1：好评 2：中评 3：差评
