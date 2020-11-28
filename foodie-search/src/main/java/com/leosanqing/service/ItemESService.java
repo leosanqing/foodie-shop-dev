@@ -9,6 +9,5 @@ import com.leosanqing.utils.PagedGridResult;
  * @Description: 商品搜索服务接口
  */
 public interface ItemESService {
-    PagedGridResult searchItems(String keywords,String sort,
-                                Integer page,Integer pageSize);
+    PagedGridResult searchItems(String keywords,String sort, Integer page,Integer pageSize);
 }

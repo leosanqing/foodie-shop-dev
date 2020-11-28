@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Date;
 
 /**
@@ -26,10 +27,9 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
     private static final String FACE_PATH = "http://122.152.205.72:88/group1/M00/00/05/CpoxxFw_8_qAllFXAAAclhVPdSg994" +
             ".png";
 
-    @Autowired
+    @Resource
     private Sid sid;
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public boolean queryUsernameIsExist(String username) {
         return lambdaQuery()
@@ -62,7 +62,6 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
 
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS)
     public Users queryUsersForLogin(String username, String password) throws Exception {
         return lambdaQuery()
                 .eq(Users::getUsername, username)

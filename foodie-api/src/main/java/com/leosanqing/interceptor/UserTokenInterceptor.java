@@ -1,19 +1,15 @@
 package com.leosanqing.interceptor;
 
-import com.leosanqing.utils.JSONResult;
-import com.leosanqing.utils.JsonUtils;
+import com.leosanqing.constant.ExceptionCodeEnum;
+import com.leosanqing.exception.BaseRuntimeException;
 import com.leosanqing.utils.RedisOperator;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 /**
  * @Author: leosanqing
@@ -24,9 +20,8 @@ import java.util.Objects;
 
 public class UserTokenInterceptor implements HandlerInterceptor {
 
-    @Autowired
+    @Resource
     private RedisOperator redisOperator;
-
 
     public static final String REDIS_USER_TOKEN = "redis_user_token";
 
@@ -48,53 +43,37 @@ public class UserTokenInterceptor implements HandlerInterceptor {
         if (StringUtils.isNotBlank(userId) && StringUtils.isNotBlank(userToken)) {
 
             String uniqueToken = redisOperator.get(REDIS_USER_TOKEN + ":" + userId);
-
-            if (StringUtils.isNotBlank(uniqueToken)) {
-                // 说明可能异地登录
-                if (!uniqueToken.equals(userToken)) {
-//                    System.out.println("异地登录，请重新登录");
-                    returnErrorResponse(response,JSONResult.errorMsg("异地登录，请重新登录"));
-
-                    return false;
-                }
-            } else {
-                returnErrorResponse(response,JSONResult.errorMsg("请登录...."));
-//                System.out.println("请登录.....");
-                return false;
+            if (StringUtils.isNotBlank(uniqueToken) && uniqueToken.equals(userToken)) {
+                return true;
             }
-        } else {
-            returnErrorResponse(response,JSONResult.errorMsg("请登录...."));
-            return false;
+            // 说明可能异地登录
         }
+        throw new BaseRuntimeException(ExceptionCodeEnum.ANOTHER_LOCATION_NEED_TO_LOGIN);
 
-        return true;
     }
 
-
-    public void returnErrorResponse(HttpServletResponse response,
-                                    JSONResult jsonResult){
-
-        OutputStream outputStream = null;
-        try {
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("text/json");
-            outputStream = response.getOutputStream();
-            outputStream.write(Objects.requireNonNull(JsonUtils.objectToJson(jsonResult)).getBytes("UTF-8"));
-            outputStream.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-    }
+//
+//    public void returnErrorResponse(HttpServletResponse response, JSONResult jsonResult) {
+//
+//        OutputStream outputStream = null;
+//        try {
+//            response.setCharacterEncoding("UTF-8");
+//            response.setContentType("text/json");
+//            outputStream = response.getOutputStream();
+//            outputStream.write(Objects.requireNonNull(JsonUtils.objectToJson(jsonResult)).getBytes(StandardCharsets.UTF_8));
+//            outputStream.flush();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                if (outputStream != null) {
+//                    outputStream.close();
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     /**
      * 进入Controller之后，渲染视图之前
@@ -120,7 +99,8 @@ public class UserTokenInterceptor implements HandlerInterceptor {
      * @throws Exception
      */
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
+                                Exception ex) throws Exception {
 
     }
 }

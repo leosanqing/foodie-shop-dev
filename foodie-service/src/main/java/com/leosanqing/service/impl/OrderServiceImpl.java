@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leosanqing.enums.OrderStatusEnum;
 import com.leosanqing.enums.YesOrNo;
-import com.leosanqing.mapper.ItemsMapper;
 import com.leosanqing.mapper.OrderItemsMapper;
 import com.leosanqing.mapper.OrderStatusMapper;
 import com.leosanqing.mapper.OrdersMapper;
@@ -12,15 +11,12 @@ import com.leosanqing.pojo.*;
 import com.leosanqing.pojo.bo.ShopCartBO;
 import com.leosanqing.pojo.bo.SubmitOrderBO;
 import com.leosanqing.pojo.vo.OrderVO;
-import com.leosanqing.pojo.vo.ShopcartVO;
 import com.leosanqing.service.AddressService;
 import com.leosanqing.service.ItemService;
 import com.leosanqing.service.OrderService;
 import com.leosanqing.utils.DateUtil;
-import com.leosanqing.utils.JSONResult;
 import org.apache.commons.lang3.StringUtils;
 import org.n3r.idworker.Sid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +35,6 @@ import java.util.Optional;
  */
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements OrderService {
-
-    @Resource
-    private OrdersMapper ordersMapper;
 
     @Resource
     private AddressService addressService;
@@ -137,7 +130,7 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
          */
         orders.setTotalAmount(0);
         orders.setRealPayAmount(0);
-        ordersMapper.insert(orders);
+        baseMapper.insert(orders);
 
 
         // 2.1 循环根据商品规格表，保存到商品规格表
@@ -191,7 +184,7 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
 
         // 因为 userId 是分片项.不能修改，所以在更新时设置成 null
         orders.setUserId(null);
-        ordersMapper.updateById(orders);
+        baseMapper.updateById(orders);
 
 //        ordersMapper.insert(orders);
 
