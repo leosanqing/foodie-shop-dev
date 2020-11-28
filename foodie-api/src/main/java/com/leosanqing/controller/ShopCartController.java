@@ -3,8 +3,6 @@ package com.leosanqing.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leosanqing.pojo.bo.ShopCartBO;
-import com.leosanqing.pojo.vo.CategoryVO;
-import com.leosanqing.utils.JSONResult;
 import com.leosanqing.utils.JsonUtils;
 import com.leosanqing.utils.RedisOperator;
 import io.swagger.annotations.Api;
@@ -21,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @Author: leosanqing
@@ -37,7 +34,7 @@ public class ShopCartController extends BaseController{
 
     @PostMapping("add")
     @ApiOperation(value = "添加购物车", notes = "添加购物车", httpMethod = "POST")
-    public JSONResult add(
+    public void add(
             @ApiParam(name = "userId", value = "用户id")
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "shopCartBO", value = "从前端传来的购物车对象")
@@ -73,14 +70,12 @@ public class ShopCartController extends BaseController{
         }
 
         redisOperator.set(SHOP_CART, JsonUtils.objectToJson(shopCartBOList));
-
-        return JSONResult.ok();
     }
 
 
     @PostMapping("del")
     @ApiOperation(value = "删除购物车", notes = "删除购物车", httpMethod = "POST")
-    public JSONResult del(
+    public void del(
             @ApiParam(name = "userId", value = "用户id")
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "itemSpecId", value = "购物车中的商品规格")
@@ -92,7 +87,7 @@ public class ShopCartController extends BaseController{
         //  前端用户在登录情况下，删除商品到购物车，会同步数据到redis
         final String shopCartStr = redisOperator.get(SHOP_CART + ":" + userId);
         if (StringUtils.isBlank(shopCartStr)) {
-            return JSONResult.ok();
+            return;
         }
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -101,7 +96,5 @@ public class ShopCartController extends BaseController{
             shopCartBOList.removeIf(shopCartBO -> shopCartBO.getSpecId().equals(itemSpecId));
         }
         redisOperator.set(SHOP_CART + ":" + userId, JsonUtils.objectToJson(shopCartBOList));
-
-        return JSONResult.ok();
     }
 }

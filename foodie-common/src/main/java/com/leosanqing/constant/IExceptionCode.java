@@ -3,14 +3,14 @@ package com.leosanqing.constant;
 import lombok.Builder;
 import lombok.Data;
 
-public interface IResultCode {
+public interface IExceptionCode {
     int getErrorCode();
 
     String getErrorMessage();
 
     @Builder
     @Data
-    class DynamicResultCode implements IResultCode {
+    class DynamicResultCode implements IExceptionCode {
         private int errorCode;
         private String errorMessage;
 

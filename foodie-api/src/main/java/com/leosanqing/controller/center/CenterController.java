@@ -2,11 +2,9 @@ package com.leosanqing.controller.center;
 
 import com.leosanqing.pojo.Users;
 import com.leosanqing.service.center.CenterUserService;
-import com.leosanqing.utils.JSONResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,11 +31,10 @@ public class CenterController {
 
     @GetMapping("userInfo")
     @ApiOperation(value = "查询用户信息", notes = "查询用户信息", httpMethod = "GET")
-    public JSONResult queryUserInfo(
+    public Users queryUserInfo(
             @ApiParam(name = "userId", value = "用户id")
             @RequestParam @NotBlank String userId
     ) {
-        final Users users = centerUserService.queryUserInfo(userId);
-        return JSONResult.ok(users);
+        return centerUserService.queryUserInfo(userId);
     }
 }

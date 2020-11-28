@@ -1,6 +1,6 @@
 package com.leosanqing.rpc;
 
-import com.leosanqing.constant.IResultCode;
+import com.leosanqing.constant.IExceptionCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,7 +44,7 @@ public class ResBody<T> implements Serializable {
                 .build();
     }
 
-    public static ResBody error(IResultCode resultCode, Object... o) {
+    public static ResBody error(IExceptionCode resultCode, Object... o) {
         return ResBody.builder()
                 .status(Status.ERROR.code)
                 .code(resultCode.getErrorCode())

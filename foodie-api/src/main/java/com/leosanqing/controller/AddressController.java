@@ -3,7 +3,6 @@ package com.leosanqing.controller;
 import com.leosanqing.pojo.UserAddress;
 import com.leosanqing.pojo.bo.AddressBO;
 import com.leosanqing.service.AddressService;
-import com.leosanqing.utils.JSONResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -30,59 +29,54 @@ public class AddressController {
 
     @GetMapping("list")
     @ApiOperation(value = "查询所有收货地址", notes = "查询所有收货地址", httpMethod = "POST")
-    public JSONResult queryAll(
+    public List<UserAddress> queryAll(
             @ApiParam(name = "userId", value = "用户id")
             @RequestParam @NotBlank String userId
     ) {
-        List<UserAddress> userAddresses = addressService.queryAll(userId);
-        return JSONResult.ok(userAddresses);
+        return addressService.queryAll(userId);
     }
 
     @PostMapping("add")
     @ApiOperation(value = "添加收货地址", notes = "添加收货地址", httpMethod = "POST")
-    public JSONResult add(
+    public void add(
             @ApiParam(name = "addressBO", value = "收货地址BO")
             @RequestBody AddressBO addressBO
     ) {
         addressService.addNewUserAddress(addressBO);
-        return JSONResult.ok();
     }
 
 
     @PostMapping("update")
     @ApiOperation(value = "添加收货地址", notes = "添加收货地址", httpMethod = "POST")
-    public JSONResult update(
+    public void update(
             @ApiParam(name = "addressBO", value = "收货地址BO")
             @RequestBody @Validated AddressBO addressBO
     ) {
         addressService.updateUserAddress(addressBO);
-        return JSONResult.ok();
     }
 
 
     @PostMapping("delete")
     @ApiOperation(value = "删除收货地址", notes = "删除收货地址", httpMethod = "POST")
-    public JSONResult del(
+    public void del(
             @ApiParam(name = "userId", value = "用户Id")
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "addressId", value = "收货地址Id")
             @RequestParam @NotBlank String addressId
     ) {
         addressService.deleteUserAddress(userId, addressId);
-        return JSONResult.ok();
     }
 
 
     @PostMapping("setDefault")
     @ApiOperation(value = "删除收货地址", notes = "删除收货地址", httpMethod = "POST")
-    public JSONResult setDefault(
+    public void setDefault(
             @ApiParam(name = "userId", value = "用户Id")
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "addressId", value = "收货地址Id")
             @RequestParam @NotBlank String addressId
     ) {
         addressService.updateToBeDefault(userId, addressId);
-        return JSONResult.ok();
     }
 
 

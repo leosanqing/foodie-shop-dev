@@ -1,9 +1,8 @@
 package com.leosanqing.advice;
 
-import com.leosanqing.constant.IResultCode;
+import com.leosanqing.constant.IExceptionCode;
 
 import com.leosanqing.exception.BaseRuntimeException;
-import com.leosanqing.utils.JSONResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
@@ -24,7 +23,7 @@ import java.util.Set;
 public class GlobalExceptionAdvice {
 
     @ExceptionHandler(value = BindException.class)
-    public IResultCode handle(BindException e) {
+    public IExceptionCode handle(BindException e) {
         log.error("check system error : ", e);
         StringBuilder stringBuilder = new StringBuilder();
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
@@ -37,7 +36,7 @@ public class GlobalExceptionAdvice {
                 }
         );
 
-        return IResultCode.DynamicResultCode
+        return IExceptionCode.DynamicResultCode
                 .builder()
                 .errorCode(HttpStatus.BAD_REQUEST.value())
                 .errorMessage(stringBuilder.toString())
@@ -45,7 +44,7 @@ public class GlobalExceptionAdvice {
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public IResultCode handle(MethodArgumentNotValidException e) {
+    public IExceptionCode handle(MethodArgumentNotValidException e) {
         log.error("check system error : ", e);
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -69,7 +68,7 @@ public class GlobalExceptionAdvice {
                 }
         );
 
-        return IResultCode.DynamicResultCode
+        return IExceptionCode.DynamicResultCode
                 .builder()
                 .errorCode(HttpStatus.BAD_REQUEST.value())
                 .errorMessage(stringBuilder.toString())
@@ -77,7 +76,7 @@ public class GlobalExceptionAdvice {
     }
 
     @ExceptionHandler(value = ConstraintViolationException.class)
-    public IResultCode handle(ConstraintViolationException e) {
+    public IExceptionCode handle(ConstraintViolationException e) {
         log.error("check system error : ", e);
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -92,7 +91,7 @@ public class GlobalExceptionAdvice {
                             .append(System.lineSeparator());
                 }
         );
-        return IResultCode.DynamicResultCode
+        return IExceptionCode.DynamicResultCode
                 .builder()
                 .errorCode(HttpStatus.BAD_REQUEST.value())
                 .errorMessage(stringBuilder.toString())
@@ -100,15 +99,15 @@ public class GlobalExceptionAdvice {
     }
 
     @ExceptionHandler(value = BaseRuntimeException.class)
-    public IResultCode handle(BaseRuntimeException e) {
+    public IExceptionCode handle(BaseRuntimeException e) {
         log.error("check system error : ", e);
         return e.getResultCode();
     }
 
     @ExceptionHandler(value = Exception.class)
-    public IResultCode handle(Exception e) {
+    public IExceptionCode handle(Exception e) {
         log.error("check system error : ", e);
-        return IResultCode.DynamicResultCode
+        return IExceptionCode.DynamicResultCode
                 .builder()
                 .errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .errorMessage(e.getMessage())
@@ -116,8 +115,8 @@ public class GlobalExceptionAdvice {
     }
 
     @ExceptionHandler({MaxUploadSizeExceededException.class})
-    public IResultCode handlerMaxUploadSize(MaxUploadSizeExceededException e) {
-        return IResultCode.DynamicResultCode
+    public IExceptionCode handlerMaxUploadSize(MaxUploadSizeExceededException e) {
+        return IExceptionCode.DynamicResultCode
                 .builder()
                 .errorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .errorMessage("上传图片大小过大")

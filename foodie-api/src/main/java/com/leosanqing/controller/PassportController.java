@@ -1,5 +1,7 @@
 package com.leosanqing.controller;
 
+import com.leosanqing.constant.ExceptionCodeEnum;
+import com.leosanqing.exception.BaseRuntimeException;
 import com.leosanqing.pojo.Users;
 import com.leosanqing.pojo.bo.UserBO;
 import com.leosanqing.pojo.vo.UsersVO;
@@ -37,21 +39,19 @@ public class PassportController extends BaseController {
 
     @GetMapping("usernameIsExist")
     @ApiOperation(value = "用户名是否存在", notes = "用户名是否存在", httpMethod = "GET")
-    public JSONResult usernameIsExist(@RequestParam @NotBlank String username) {
+    public void usernameIsExist(@RequestParam @NotBlank String username) {
         // 判断用户名是否存在
         boolean isExist = userService.queryUsernameIsExist(username);
         if (isExist) {
-            return JSONResult.errorMsg("用户名已存在");
+            throw new BaseRuntimeException(ExceptionCodeEnum.USERNAME_IS_EXIST);
         }
-
-        return JSONResult.ok();
     }
 
     @PostMapping("regist")
     @ApiOperation(value = "用户注册", notes = "用户注册", httpMethod = "POST")
-    public JSONResult register(@RequestBody @Validated UserBO userBO,
-                               HttpServletRequest request,
-                               HttpServletResponse response) {
+    public void register(@RequestBody @Validated UserBO userBO,
+                         HttpServletRequest request,
+                         HttpServletResponse response) {
         String username = userBO.getUsername();
         String password = userBO.getPassword();
         String confirmPassword = userBO.getConfirmPassword();
@@ -59,12 +59,12 @@ public class PassportController extends BaseController {
         // 查询用户名是否存在
         boolean isExist = userService.queryUsernameIsExist(username);
         if (isExist) {
-            return JSONResult.errorMsg("用户名已存在");
+            throw new BaseRuntimeException(ExceptionCodeEnum.USERNAME_IS_EXIST);
         }
 
         // 判断两次密码是否一致
         if (!password.equals(confirmPassword)) {
-            return JSONResult.errorMsg("两次密码不一致");
+            throw new BaseRuntimeException(ExceptionCodeEnum.CONFIRM_PASSWORD_INCORRECT);
         }
 
         // 实现注册
@@ -80,43 +80,39 @@ public class PassportController extends BaseController {
 
         // 同步数据到redis
         syncShopCartData(users.getId(), request, response);
-
-        return JSONResult.ok();
     }
 
 
     @PostMapping("login")
     @ApiOperation(value = "用户登录", notes = "用户登录", httpMethod = "POST")
-    public JSONResult login(@RequestBody @Validated UserBO userBO,
-                            HttpServletRequest request,
-                            HttpServletResponse response) {
+    public UsersVO login(@RequestBody @Validated UserBO userBO,
+                         HttpServletRequest request,
+                         HttpServletResponse response) {
         String username = userBO.getUsername();
         String password = userBO.getPassword();
 
         // 查询用户名是否存在
         Users users = null;
         try {
-            users = userService.queryUsersForLogin(username,
-                    MD5Utils.getMD5Str(password));
+            users = userService.queryUsersForLogin(username, MD5Utils.getMD5Str(password));
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         if (users == null) {
-            return JSONResult.errorMsg("用户名或密码不正确");
+            throw new BaseRuntimeException(ExceptionCodeEnum.PASSWORD_INCORRECT);
         }
 
         // 分布式会话
         UsersVO usersVO = convertUsersVO(users);
 
-        CookieUtils.setCookie(request, response, "user",
-                JsonUtils.objectToJson(usersVO), true);
+        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(usersVO), true);
         // 实现登录
 
         //  同步数据到redis
         syncShopCartData(usersVO.getId(), request, response);
-        return JSONResult.ok(usersVO);
 
+        return usersVO;
     }
 
 
@@ -153,18 +149,13 @@ public class PassportController extends BaseController {
 
     @PostMapping("logout")
     @ApiOperation(value = "退出登录", notes = "退出登录", httpMethod = "POST")
-    public JSONResult logout(@RequestParam @NotBlank String userId,
-                             HttpServletRequest request,
-                             HttpServletResponse response) {
-
+    public void logout(@RequestParam @NotBlank String userId,
+                       HttpServletRequest request, HttpServletResponse response) {
 
         CookieUtils.deleteCookie(request, response, "user");
 
         // 清除redis数据
         redisOperator.del(REDIS_USER_TOKEN + ":" + userId);
-
-        return JSONResult.ok();
-
     }
 
 

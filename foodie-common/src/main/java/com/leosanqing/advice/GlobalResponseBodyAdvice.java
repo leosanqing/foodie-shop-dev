@@ -1,7 +1,7 @@
 package com.leosanqing.advice;
 
 
-import com.leosanqing.constant.IResultCode;
+import com.leosanqing.constant.IExceptionCode;
 
 import com.leosanqing.rpc.ResBody;
 import org.springframework.core.MethodParameter;
@@ -26,8 +26,8 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice {
             return body;
         }
 
-        if (body instanceof IResultCode) {
-            return ResBody.error((IResultCode) body);
+        if (body instanceof IExceptionCode) {
+            return ResBody.error((IExceptionCode) body);
         }
 
         return ResBody.success(body);

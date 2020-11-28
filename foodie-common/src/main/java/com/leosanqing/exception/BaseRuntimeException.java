@@ -1,15 +1,15 @@
 package com.leosanqing.exception;
 
 
-import com.leosanqing.constant.IResultCode;
+import com.leosanqing.constant.IExceptionCode;
 import lombok.Getter;
 
 @Getter
 public class BaseRuntimeException extends RuntimeException {
 
-    private IResultCode resultCode;
+    private IExceptionCode resultCode;
 
-    public BaseRuntimeException(IResultCode resultCode) {
+    public BaseRuntimeException(IExceptionCode resultCode) {
         super(resultCode.getErrorMessage());
         this.resultCode = resultCode;
     }
@@ -18,7 +18,7 @@ public class BaseRuntimeException extends RuntimeException {
         super(cause);
     }
 
-    public BaseRuntimeException(Throwable cause, IResultCode resultCode) {
+    public BaseRuntimeException(Throwable cause, IExceptionCode resultCode) {
         super(cause);
         this.resultCode = resultCode;
     }

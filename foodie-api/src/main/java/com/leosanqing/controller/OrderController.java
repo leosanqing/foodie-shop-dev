@@ -2,13 +2,14 @@ package com.leosanqing.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.leosanqing.constant.ExceptionCodeEnum;
+import com.leosanqing.exception.BaseRuntimeException;
 import com.leosanqing.pojo.OrderStatus;
 import com.leosanqing.pojo.bo.ShopCartBO;
 import com.leosanqing.pojo.bo.SubmitOrderBO;
 import com.leosanqing.pojo.vo.OrderVO;
 import com.leosanqing.service.OrderService;
 import com.leosanqing.utils.CookieUtils;
-import com.leosanqing.utils.JSONResult;
 import com.leosanqing.utils.JsonUtils;
 import com.leosanqing.utils.RedisOperator;
 import io.swagger.annotations.Api;
@@ -46,7 +47,7 @@ public class OrderController extends BaseController {
 
     @PostMapping("create")
     @ApiOperation(value = "创建订单", notes = "创建订单", httpMethod = "POST")
-    public JSONResult create(
+    public String create(
             @ApiParam(name = "submitOrderBO", value = "订单对象", required = true)
             @RequestBody @Valid SubmitOrderBO submitOrderBO,
             HttpServletRequest request,
@@ -54,7 +55,7 @@ public class OrderController extends BaseController {
 
         final String shopCartStr = redisOperator.get(SHOP_CART + ":" + submitOrderBO.getUserId());
         if (StringUtils.isNotBlank(shopCartStr)) {
-            return JSONResult.errorMsg("购物车数据不正确");
+            throw new BaseRuntimeException(ExceptionCodeEnum.SHOP_CART_DATA_INCORRECT);
         }
         ObjectMapper objectMapper = new ObjectMapper();
         List<ShopCartBO> shopCartBOList = objectMapper.readValue(shopCartStr, new TypeReference<List<ShopCartBO>>() {
@@ -75,14 +76,13 @@ public class OrderController extends BaseController {
         // TODO 整合Redis之后
         // 3.像支付中心发送当前订单，用于保存支付中心的订单数据
         System.out.println(submitOrderBO.toString());
-        return JSONResult.ok(orderId);
+        return orderId;
 
     }
 
     @GetMapping("paid_order_info")
     @ApiOperation(value = "查询支付状态", notes = "查询支付状态", httpMethod = "POST")
-    public JSONResult getPaidOrderInfo(@RequestParam @NotBlank String orderId) {
-        OrderStatus orderStatus = orderService.queryOrderStatusInfo(orderId);
-        return JSONResult.ok(orderStatus);
+    public OrderStatus getPaidOrderInfo(@RequestParam @NotBlank String orderId) {
+        return orderService.queryOrderStatusInfo(orderId);
     }
 }

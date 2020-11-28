@@ -1,6 +1,8 @@
 package com.leosanqing.controller.center;
 
+import com.leosanqing.constant.ExceptionCodeEnum;
 import com.leosanqing.controller.BaseController;
+import com.leosanqing.exception.BaseRuntimeException;
 import com.leosanqing.pojo.Users;
 import com.leosanqing.pojo.bo.center.CenterUserBO;
 import com.leosanqing.pojo.vo.UsersVO;
@@ -8,15 +10,12 @@ import com.leosanqing.resource.FileUpload;
 import com.leosanqing.service.center.CenterUserService;
 import com.leosanqing.utils.CookieUtils;
 import com.leosanqing.utils.DateUtil;
-import com.leosanqing.utils.JSONResult;
 import com.leosanqing.utils.JsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +26,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @Author: leosanqing
@@ -60,20 +56,14 @@ public class CenterUserController extends BaseController {
 
     @PostMapping("update")
     @ApiOperation(value = "更新用户信息", notes = "更新用户信息", httpMethod = "POST")
-    public JSONResult updateUserInfo(
+    public UsersVO updateUserInfo(
             @ApiParam(name = "userId", value = "用户id")
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "centerUserBO", value = "用户中心bo")
             @RequestBody @Valid CenterUserBO centerUserBO,
-            BindingResult result,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        if (result.hasErrors()) {
-            final Map<String, String> errorMap = getErrors(result);
-            return JSONResult.errorMap(errorMap);
-        }
-
         Users users = centerUserService.updateUserInfo(userId, centerUserBO);
 
         // 后续增加令牌 整合进redis
@@ -83,17 +73,17 @@ public class CenterUserController extends BaseController {
         CookieUtils.setCookie(request, response, "user",
                 JsonUtils.objectToJson(usersVO), true);
 
-        return JSONResult.ok(usersVO);
+        return usersVO;
     }
 
 
     @PostMapping("uploadFace")
     @ApiOperation(value = "查询用户信息", notes = "查询用户信息", httpMethod = "POST")
-    public JSONResult queryUserInfo(
+    public void queryUserInfo(
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "file", value = "用户头像", required = true)
-                    @NotEmpty MultipartFile file,
+            @NotEmpty MultipartFile file,
             HttpServletRequest request,
             HttpServletResponse response
 
@@ -103,23 +93,23 @@ public class CenterUserController extends BaseController {
         final String filename = file.getOriginalFilename();
         if (StringUtils.isNotBlank(filename)) {
             final String[] split = StringUtils.split(filename, "\\.");
-            final String suffix = split[split.length -1];
-            if(!"png".equalsIgnoreCase(suffix)
+            final String suffix = split[split.length - 1];
+            if (!"png".equalsIgnoreCase(suffix)
                     && !"jpg".equalsIgnoreCase(suffix)
-                    && ! "jpeg".equalsIgnoreCase(suffix)){
+                    && !"jpeg".equalsIgnoreCase(suffix)) {
 
-                return JSONResult.errorMsg("图片格式不正确");
+                throw new BaseRuntimeException(ExceptionCodeEnum.IMG_TYPE_ERROR);
             }
 
             String newFileName = "face-" + userId + "." + split[split.length - 1];
 
             // 文件最终保存的路径
 //                String finalPath = USER_FACE_IMG_LOCATION + userFaceImgPrefix + File.pathSeparator + newFileName;
-            String finalPath = fileUpload.getUserFaceImgLocation()  + userFaceImgPrefix + File.separator + newFileName;
+            String finalPath = fileUpload.getUserFaceImgLocation() + userFaceImgPrefix + File.separator + newFileName;
 
 
             // 用于提供给web服务
-            userFaceImgPrefix += ("/"+newFileName);
+            userFaceImgPrefix += ("/" + newFileName);
             final File outFile = new File(finalPath);
             File parent = outFile.getParentFile();
             if (parent != null) {
@@ -141,7 +131,7 @@ public class CenterUserController extends BaseController {
 
         String finalUserServerUrl = fileUpload.getImgServerUrl() +
                 userFaceImgPrefix
-                +"?t="+ DateUtil.getCurrentDateString(DateUtil.DATE_PATTERN);
+                + "?t=" + DateUtil.getCurrentDateString(DateUtil.DATE_PATTERN);
 
         final Users users = centerUserService.updateUserFace(userId, finalUserServerUrl);
 
@@ -152,24 +142,6 @@ public class CenterUserController extends BaseController {
         CookieUtils.setCookie(request, response, "user",
                 JsonUtils.objectToJson(usersVO), true);
 
-        return JSONResult.ok();
-
     }
 
-    /**
-     * @param result
-     * @return
-     */
-    private Map<String, String> getErrors(BindingResult result) {
-
-        final HashMap<String, String> map = new HashMap<>();
-        final List<FieldError> fieldErrors = result.getFieldErrors();
-        for (FieldError fieldError : fieldErrors) {
-            String errorField = fieldError.getField();
-             String defaultMessage = fieldError.getDefaultMessage();
-            map.put(errorField, defaultMessage);
-        }
-
-        return map;
-    }
 }
