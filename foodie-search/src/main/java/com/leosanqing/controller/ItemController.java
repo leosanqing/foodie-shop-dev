@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 /**
  * @Author: leosanqing
@@ -33,7 +33,7 @@ public class ItemController {
 
     @GetMapping("/es/search")
     public PagedGridResult searchItems(
-            @NotEmpty String keywords,
+            @NotBlank String keywords,
             String sort,
             Integer page,
             Integer pageSize) {

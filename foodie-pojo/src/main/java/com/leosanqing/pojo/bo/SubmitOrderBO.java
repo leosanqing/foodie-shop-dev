@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * @Author: leosanqing
@@ -21,7 +21,7 @@ public class SubmitOrderBO {
     private String itemSpecIds;
     @NotBlank
     private String addressId;
-    @NotEmpty
+    @NotNull
     private Integer payMethod;
     private String leftMsg;
 }

@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.*;
 
 /**
@@ -83,7 +83,7 @@ public class CenterUserController extends BaseController {
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "file", value = "用户头像", required = true)
-            @NotEmpty MultipartFile file,
+            @NotNull MultipartFile file,
             HttpServletRequest request,
             HttpServletResponse response
 

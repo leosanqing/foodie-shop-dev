@@ -14,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 
 /**
  * @Author: leosanqing
@@ -61,12 +60,18 @@ public class MyOrdersController {
     }
 
 
-    // 商家发货没有后端，所以这个接口仅仅只是用于模拟
+    /**
+     * @description: 商家发货没有后端，所以这个接口仅仅只是用于模拟
+     * @author: zhuerchong
+     * @date: 2020/11/28 1:36 下午
+     * @param: null
+     * @return:
+     */
     @ApiOperation(value = "商家发货", notes = "商家发货", httpMethod = "GET")
     @GetMapping("/deliver")
     public void deliver(
             @ApiParam(name = "orderId", value = "订单id", required = true)
-            @RequestParam @NotBlank  String orderId) {
+            @RequestParam @NotBlank String orderId) {
 
         myOrdersService.updateDeliverOrderStatus(orderId);
     }
@@ -109,7 +114,7 @@ public class MyOrdersController {
     @PostMapping("status_counts")
     public OrderStatusCountsVO statusCounts(
             @ApiParam(name = "userId", value = "用户id", required = true)
-            @RequestParam @NotEmpty String userId) {
+            @RequestParam @NotBlank String userId) {
         return myOrdersService.getOrderStatusCount(userId);
     }
 

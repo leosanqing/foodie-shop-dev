@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
 
@@ -90,7 +90,7 @@ public class IndexController {
     @ApiOperation(value = "获取商品子分类", notes = "获取商品子分类", httpMethod = "GET")
     public List<CategoryVO> subCats(
             @ApiParam(name = "rootCatId", value = "一级分类Id", required = true)
-            @PathVariable @NotEmpty Integer rootCatId) throws IOException {
+            @PathVariable @NotNull Integer rootCatId) throws IOException {
 
         List<CategoryVO> categoryVOList;
         final String subCatStr = redisOperator.get("subCat:" + rootCatId);
@@ -116,7 +116,7 @@ public class IndexController {
     @ApiOperation(value = "查询每个分类下的六个最新商品", notes = "查询每个分类下的六个最新商品", httpMethod = "GET")
     public List<NewItemsVO> getSixNewItems(
             @ApiParam(name = "rootCatId", value = "一级分类Id", required = true)
-            @PathVariable @NotEmpty Integer rootCatId) {
+            @PathVariable @NotNull Integer rootCatId) {
         return categoryService.getSixNewItemsLazy(rootCatId);
     }
 

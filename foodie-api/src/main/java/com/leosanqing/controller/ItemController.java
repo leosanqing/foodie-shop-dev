@@ -17,7 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -94,7 +94,7 @@ public class ItemController {
     @ApiOperation(value = "根据第三级分类搜索商品列表", notes = "根据第三级分类搜索商品列表", httpMethod = "GET")
     public PagedGridResult searchItems(
             @ApiParam(name = "catId", value = "第三级分类id", required = true)
-            @RequestParam @NotEmpty Integer catId,
+            @RequestParam @NotNull Integer catId,
             @ApiParam(name = "sort", value = "排序规则", required = false)
             @RequestParam String sort,
             @ApiParam(name = "page", value = "第几页", required = false)
