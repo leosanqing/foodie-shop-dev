@@ -7,7 +7,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leosanqing.enums.YesOrNo;
 import com.leosanqing.mapper.OrderStatusMapper;
 import com.leosanqing.mapper.OrdersMapper;
-import com.leosanqing.mapper.OrdersMapperCustom;
 import com.leosanqing.pojo.OrderStatus;
 import com.leosanqing.pojo.Orders;
 import com.leosanqing.pojo.vo.MyOrdersVO;
@@ -30,9 +29,6 @@ import java.util.Map;
  */
 @Service
 public class MyOrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> implements MyOrdersService {
-
-    @Resource
-    private OrdersMapperCustom ordersMapperCustom;
 
     @Resource
     private OrderStatusMapper orderStatusMapper;
