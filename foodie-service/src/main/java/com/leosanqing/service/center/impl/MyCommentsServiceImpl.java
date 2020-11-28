@@ -43,9 +43,6 @@ public class MyCommentsServiceImpl extends ServiceImpl<OrdersMapper, Orders> imp
     private ItemsCommentsMapper itemsCommentsMapper;
 
     @Resource
-    private OrdersMapper ordersMapper;
-
-    @Resource
     private OrderStatusMapper orderStatusMapper;
 
     @Resource
@@ -90,15 +87,5 @@ public class MyCommentsServiceImpl extends ServiceImpl<OrdersMapper, Orders> imp
     public IPage<MyCommentVO> queryMyComments(String userId, Integer page, Integer pageSize) {
         return itemsCommentsMapper.queryMyComments(userId, new Page<>(page, pageSize));
     }
-
-//    private PagedGridResult setterPage(List<?> list, int page) {
-//        PageInfo<?> pageList = new PageInfo<>(list);
-//        PagedGridResult grid = new PagedGridResult();
-//        grid.setPage(page);
-//        grid.setRows(list);
-//        grid.setTotal(pageList.getPages());
-//        grid.setRecords(pageList.getTotal());
-//        return grid;
-//    }
 
 }

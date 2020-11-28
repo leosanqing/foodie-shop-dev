@@ -19,5 +19,4 @@ import org.springframework.stereotype.Component;
 public class FileUpload {
     private String userFaceImgLocation;
     private String imgServerUrl;
-
 }

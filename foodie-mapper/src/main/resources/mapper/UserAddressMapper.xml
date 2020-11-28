@@ -13,7 +13,7 @@
     <result column="city" property="city" jdbcType="VARCHAR" />
     <result column="district" property="district" jdbcType="VARCHAR" />
     <result column="detail" property="detail" jdbcType="VARCHAR" />
-    <result column="extand" property="extand" jdbcType="VARCHAR" />
+    <result column="extend" property="extend" jdbcType="VARCHAR"/>
     <result column="is_default" property="isDefault" jdbcType="INTEGER" />
     <result column="created_time" property="createdTime" jdbcType="TIMESTAMP" />
     <result column="updated_time" property="updatedTime" jdbcType="TIMESTAMP" />

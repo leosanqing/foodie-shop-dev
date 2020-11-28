@@ -2,7 +2,6 @@ package com.leosanqing.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.RestController;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -21,10 +20,17 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class Swagger2 {
 
 
-    // 配置Swagger2核心配置
+    /***
+     * @description: 配置Swagger2核心配置
+     * @author: zhuerchong
+     * @date: 2020/11/28 1:42 下午
+     * @param:
+     * @return: {@link Docket}
+     */
     @Bean
-    public Docket createRestApi(){
-        return new Docket(DocumentationType.SWAGGER_2) //指定API类型为Swagger2
+    public Docket createRestApi() {
+        //指定API类型为Swagger2
+        return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors
@@ -33,15 +39,20 @@ public class Swagger2 {
                 .build();
     }
 
-    private ApiInfo apiInfo(){
+    private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("leosanqing商铺接口API") // 标题
-                .contact(new Contact("leosanqing",
+                // 标题
+                .title("leosanqing商铺接口API")
+                .contact(new Contact(
+                        "leosanqing",
                         "https://github.com/leosanqing/Java-Notes",
-                        "stormleo@qq.com")) // 联系人
+                        // 联系人
+                        "stormleo@qq.com"))
                 .version("1.0.1")
-                .termsOfServiceUrl("https://github.com/leosanqing/Java-Notes") // 网站地址
-                .description("电商平台API")  // 描述
+                // 网站地址
+                .termsOfServiceUrl("https://github.com/leosanqing/Java-Notes")
+                // 描述
+                .description("电商平台API")
                 .build();
 
 
