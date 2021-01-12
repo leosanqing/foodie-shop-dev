@@ -69,7 +69,7 @@ public class ShopCartController extends BaseController{
             }
         }
 
-        redisOperator.set(SHOP_CART, JsonUtils.objectToJson(shopCartBOList));
+        redisOperator.set(SHOP_CART + ":" + userId, JsonUtils.objectToJson(shopCartBOList));
     }
 
 

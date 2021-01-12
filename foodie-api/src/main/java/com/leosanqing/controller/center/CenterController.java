@@ -29,7 +29,7 @@ public class CenterController {
     @Autowired
     private CenterUserService centerUserService;
 
-    @GetMapping("userInfo")
+    @GetMapping("user-info")
     @ApiOperation(value = "查询用户信息", notes = "查询用户信息", httpMethod = "GET")
     public Users queryUserInfo(
             @ApiParam(name = "userId", value = "用户id")

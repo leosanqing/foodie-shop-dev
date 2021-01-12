@@ -35,7 +35,7 @@ import java.io.*;
  */
 @Api
 @RestController
-@RequestMapping("api/v1/userInfo")
+@RequestMapping("api/v1/user-info")
 @Validated
 public class CenterUserController extends BaseController {
 //    public static final String USER_FACE_IMG_LOCATION =
