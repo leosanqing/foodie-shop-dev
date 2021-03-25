@@ -42,6 +42,8 @@ public class IndexController {
 
     @Autowired
     private RedisOperator redisOperator;
+    @Autowired
+    ObjectMapper objectMapper;
 
     @GetMapping("carousel")
     @ApiOperation(value = "获取首页了轮播图列表", notes = "获取首页轮播图列表", httpMethod = "GET")
@@ -56,10 +58,10 @@ public class IndexController {
         List<Carousel> carousels;
         final String carouselStr = redisOperator.get("carousel");
         if (StringUtils.isNotBlank(carouselStr)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            carousels = objectMapper.readValue(carouselStr, new TypeReference<List<Carousel>>() {
-            });
-            return carousels;
+           return objectMapper.readValue(
+                    carouselStr, new TypeReference<List<Carousel>>() {
+                    }
+            );
         }
 
         carousels = carouselService.queryAll(YesOrNo.YES.type);
@@ -76,8 +78,8 @@ public class IndexController {
 
         final String catsStr = redisOperator.get("cats");
         if (StringUtils.isNotBlank(catsStr)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readValue(catsStr, new TypeReference<List<Category>>() {
+            return objectMapper.readValue(
+                    catsStr, new TypeReference<List<Category>>() {
             });
         }
 
@@ -96,7 +98,6 @@ public class IndexController {
         final String subCatStr = redisOperator.get("subCat:" + rootCatId);
 
         if (StringUtils.isNotBlank(subCatStr)) {
-            ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.readValue(subCatStr, new TypeReference<List<CategoryVO>>() {
             });
         }
@@ -119,6 +120,5 @@ public class IndexController {
             @PathVariable @NotNull Integer rootCatId) {
         return categoryService.getSixNewItemsLazy(rootCatId);
     }
-
 
 }

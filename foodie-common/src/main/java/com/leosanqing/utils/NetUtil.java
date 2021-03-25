@@ -56,7 +56,8 @@ public class NetUtil {
                 if (ip.startsWith("127.") ||
                         ip.startsWith("10.") ||
                         ip.startsWith("172.") ||
-                        ip.startsWith("192.")) {
+                        ip.startsWith("192.")
+                ) {
                     continue;
                 }
                 return i;

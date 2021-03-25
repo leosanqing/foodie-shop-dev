@@ -78,6 +78,4 @@ public class AddressController {
     ) {
         addressService.updateToBeDefault(userId, addressId);
     }
-
-
 }

@@ -33,8 +33,9 @@ public class Swagger2 {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors
-                        .basePackage("com.leosanqing"))
+                .apis(
+                        RequestHandlerSelectors.basePackage("com.leosanqing")
+                )
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -43,11 +44,14 @@ public class Swagger2 {
         return new ApiInfoBuilder()
                 // 标题
                 .title("leosanqing商铺接口API")
-                .contact(new Contact(
-                        "leosanqing",
-                        "https://github.com/leosanqing/Java-Notes",
-                        // 联系人
-                        "stormleo@qq.com"))
+                .contact(
+                        new Contact(
+                                "leosanqing",
+                                "https://github.com/leosanqing/Java-Notes",
+                                // 联系人
+                                "stormleo@qq.com"
+                        )
+                )
                 .version("1.0.1")
                 // 网站地址
                 .termsOfServiceUrl("https://github.com/leosanqing/Java-Notes")

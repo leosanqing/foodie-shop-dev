@@ -66,14 +66,15 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
                         .eq(OrderStatus::getOrderStatus, OrderStatus.OrderStatusEnum.WAIT_PAY.type)
         );
 
-        list.forEach(orderStatus -> {
-            // 和当前时间进行对比
-            int days = DateUtil.daysBetween(orderStatus.getCreatedTime(), new Date());
-            if (days >= 1) {
-                // 超过1天，关闭订单
-                doCloseOrder(orderStatus.getOrderId());
-            }
-        });
+        list.forEach(
+                orderStatus -> {
+                    // 和当前时间进行对比
+                    if (1 <= DateUtil.daysBetween(orderStatus.getCreatedTime(), new Date())) {
+                        // 超过1天，关闭订单
+                        doCloseOrder(orderStatus.getOrderId());
+                    }
+                }
+        );
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -144,12 +145,13 @@ public class OrderServiceImpl extends ServiceImpl<OrdersMapper, Orders> implemen
             // 查询每个商品的规格
             ItemsSpec itemsSpec = itemService.queryItemBySpecId(itemSpecId);
 
-            Optional<ShopCartBO> optional = shopCartBOList.stream()
+            Optional<ShopCartBO> optional = shopCartBOList
+                    .stream()
                     .filter(bo -> bo.getSpecId().equals(itemSpecId))
                     .findFirst();
 
             int counts = 0;
-            if (optional.isPresent()){
+            if (optional.isPresent()) {
                 toBeRemovedList.add(optional.get());
                 counts = optional.get().getBuyCounts();
             }

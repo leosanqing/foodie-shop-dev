@@ -31,6 +31,8 @@ public class ShopCartController extends BaseController{
 
     @Autowired
     private RedisOperator redisOperator;
+    @Autowired
+    ObjectMapper objectMapper;
 
     @PostMapping("add")
     @ApiOperation(value = "添加购物车", notes = "添加购物车", httpMethod = "POST")
@@ -39,8 +41,6 @@ public class ShopCartController extends BaseController{
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "shopCartBO", value = "从前端传来的购物车对象")
             @RequestBody ShopCartBO shopCartBO
-//            HttpServletRequest request,
-//            HttpServletResponse response
     ) throws IOException {
         System.out.println(shopCartBO);
         // 前端用户在登录情况下，添加商品到购物车，会同步数据到redis
@@ -51,7 +51,6 @@ public class ShopCartController extends BaseController{
             shopCartBOList = new ArrayList<>();
             shopCartBOList.add(shopCartBO);
         } else {
-            ObjectMapper objectMapper = new ObjectMapper();
             shopCartBOList = objectMapper.readValue(shopCartStr, new TypeReference<List<ShopCartBO>>() {});
 
             boolean isExist = false;
@@ -79,9 +78,7 @@ public class ShopCartController extends BaseController{
             @ApiParam(name = "userId", value = "用户id")
             @RequestParam @NotBlank String userId,
             @ApiParam(name = "itemSpecId", value = "购物车中的商品规格")
-            @RequestBody @NotBlank String itemSpecId,
-            HttpServletRequest request,
-            HttpServletResponse response
+            @RequestBody @NotBlank String itemSpecId
     ) throws IOException {
 
         //  前端用户在登录情况下，删除商品到购物车，会同步数据到redis
@@ -90,7 +87,6 @@ public class ShopCartController extends BaseController{
             return;
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
         List<ShopCartBO> shopCartBOList = objectMapper.readValue(shopCartStr, new TypeReference<List<ShopCartBO>>() {});
         if (shopCartBOList != null) {
             shopCartBOList.removeIf(shopCartBO -> shopCartBO.getSpecId().equals(itemSpecId));

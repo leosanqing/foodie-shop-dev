@@ -23,7 +23,9 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author: leosanqing
@@ -60,7 +62,8 @@ public class ItemESServiceImpl implements ItemESService {
 
         NativeSearchQuery build = new NativeSearchQueryBuilder()
                 .withQuery(QueryBuilders.matchQuery(itemNameField, keywords))
-                .withHighlightFields(new HighlightBuilder.Field(itemNameField)
+                .withHighlightFields(
+                        new HighlightBuilder.Field(itemNameField)
 //                        .preTags(preTag).postTags(postTag)
                 )
                 .withSort(order)
@@ -70,32 +73,20 @@ public class ItemESServiceImpl implements ItemESService {
         AggregatedPage<Items> itemsAggregatedPage = template.queryForPage(build, Items.class, new SearchResultMapper() {
             @Override
             public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
-                List<Items> list = new ArrayList<>();
                 SearchHits hits = response.getHits();
-                for (SearchHit hit : hits) {
-                    HighlightField highlightField = hit.getHighlightFields().get(itemNameField);
-                    String itemsName = highlightField.getFragments()[0].toString();
-
-                    String id = (String) hit.getSourceAsMap().get("id");
-                    String imgUrl = (String) hit.getSourceAsMap().get("imgUrl");
-                    Integer price = (Integer) hit.getSourceAsMap().get("price");
-                    Integer sellCounts = (Integer) hit.getSourceAsMap().get("sellCounts");
-
-
-                    Items items = new Items();
-
-                    items.setId(id);
-                    items.setImgUrl(imgUrl);
-                    items.setItemName(itemsName);
-                    items.setPrice(price);
-                    items.setSellCounts(sellCounts);
+                List<Items> collect = Arrays.stream(hits.getHits())
+                        .map(
+                                hit -> Items.builder()
+                                        .id((String) hit.getSourceAsMap().get("id"))
+                                        .imgUrl((String) hit.getSourceAsMap().get("imgUrl"))
+                                        .itemName(hit.getHighlightFields().get(itemNameField).getFragments()[0].toString())
+                                        .price((Integer) hit.getSourceAsMap().get("price"))
+                                        .sellCounts((Integer) hit.getSourceAsMap().get("sellCounts"))
+                                        .build()
+                        ).collect(Collectors.toList());
 
 
-                    list.add(items);
-                }
-
-                return new AggregatedPageImpl<>((List<T>) list,
-                        pageable, response.getHits().totalHits);
+                return new AggregatedPageImpl<>((List<T>) collect, pageable, response.getHits().totalHits);
             }
         });
 

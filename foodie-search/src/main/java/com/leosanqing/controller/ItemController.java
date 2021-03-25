@@ -1,11 +1,8 @@
 package com.leosanqing.controller;
 
-import com.leosanqing.constant.ExceptionCodeEnum;
-import com.leosanqing.exception.BaseRuntimeException;
 import com.leosanqing.service.ItemESService;
 import com.leosanqing.utils.PagedGridResult;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.validation.annotation.Validated;
@@ -38,9 +35,6 @@ public class ItemController {
             Integer page,
             Integer pageSize) {
 
-        if (StringUtils.isBlank(keywords)) {
-            throw new BaseRuntimeException(ExceptionCodeEnum.KEYWORD_IS_EMPTY);
-        }
         if (page == null) {
             page = 1;
         }

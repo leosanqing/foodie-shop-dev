@@ -50,6 +50,5 @@ public class CenterUserServiceImpl extends ServiceImpl<UsersMapper, Users> imple
         baseMapper.updateById(users);
 
         return queryUserInfo(userId);
-
     }
 }

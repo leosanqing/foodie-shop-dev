@@ -84,19 +84,16 @@ public class AddressServiceImpl extends ServiceImpl<UserAddressMapper, UserAddre
     public void updateToBeDefault(String userId, String addressId) {
 
         // 将原来的地址修改为非默认地址
-        UserAddress userAddress = new UserAddress();
-        userAddress.setUserId(userId);
-        userAddress.setIsDefault(YesOrNo.YES.type);
-
-        List<UserAddress> select = lambdaQuery()
+        lambdaQuery()
                 .eq(UserAddress::getUserId, userId)
                 .eq(UserAddress::getIsDefault, YesOrNo.YES.type)
-                .list();
-
-        for (UserAddress address : select) {
-            address.setIsDefault(YesOrNo.NO.type);
-            baseMapper.updateById(address);
-        }
+                .list()
+                .forEach(
+                        ua -> {
+                            ua.setIsDefault(YesOrNo.NO.type);
+                            baseMapper.updateById(ua);
+                        }
+                );
 
         // 将现在的地址改为默认地址
         baseMapper.updateById(

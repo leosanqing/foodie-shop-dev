@@ -75,8 +75,7 @@ public class PassportController extends BaseController {
         // 生成token，用于分布式会话
         UsersVO usersVO = convertUsersVO(users);
 
-        CookieUtils.setCookie(request, response, "user",
-                JsonUtils.objectToJson(usersVO), true);
+        CookieUtils.setCookie(request, response, "user", JsonUtils.objectToJson(usersVO), true);
 
         // 同步数据到redis
         syncShopCartData(users.getId(), request, response);

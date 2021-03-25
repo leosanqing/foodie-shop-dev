@@ -38,13 +38,10 @@ public class MyCommentsServiceImpl extends ServiceImpl<OrdersMapper, Orders> imp
 
     @Resource
     private OrderItemsMapper orderItemsMapper;
-
     @Resource
     private ItemsCommentsMapper itemsCommentsMapper;
-
     @Resource
     private OrderStatusMapper orderStatusMapper;
-
     @Resource
     private Sid sid;
 

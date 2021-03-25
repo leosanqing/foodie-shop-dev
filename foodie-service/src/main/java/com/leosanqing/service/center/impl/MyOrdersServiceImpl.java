@@ -57,13 +57,11 @@ public class MyOrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> imple
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public boolean deleteOrder(String userId, String orderId) {
-        Orders updateOrder = new Orders();
-        updateOrder.setIsDelete(YesOrNo.YES.type);
-        updateOrder.setUpdatedTime(new Date());
-
         return lambdaUpdate()
                 .eq(Orders::getId, orderId)
                 .eq(Orders::getUserId, userId)
+                .set(Orders::getIsDelete, YesOrNo.YES.type)
+                .set(Orders::getUpdatedTime, new Date())
                 .update();
     }
 
