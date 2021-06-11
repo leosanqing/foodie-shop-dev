@@ -34,7 +34,7 @@ public class ShopCartController extends BaseController{
     @Autowired
     ObjectMapper objectMapper;
 
-    @PostMapping("add")
+    @PostMapping("api/v1/shop_cart/add")
     @ApiOperation(value = "添加购物车", notes = "添加购物车", httpMethod = "POST")
     public void add(
             @ApiParam(name = "userId", value = "用户id")
@@ -72,7 +72,7 @@ public class ShopCartController extends BaseController{
     }
 
 
-    @PostMapping("del")
+    @PostMapping("api/v1/shop_cart/del")
     @ApiOperation(value = "删除购物车", notes = "删除购物车", httpMethod = "POST")
     public void del(
             @ApiParam(name = "userId", value = "用户id")

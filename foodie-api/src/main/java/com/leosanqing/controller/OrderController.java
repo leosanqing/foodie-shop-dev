@@ -34,7 +34,6 @@ import java.util.List;
  * @Description: 订单相关Controller
  */
 @RestController
-@RequestMapping("api/v1/orders")
 @Api(value = "订单相关", tags = {"订单的相关接口"})
 @Validated
 public class OrderController extends BaseController {
@@ -45,7 +44,7 @@ public class OrderController extends BaseController {
     @Autowired
     private RedisOperator redisOperator;
 
-    @PostMapping("create")
+    @PostMapping("api/v1/orders/create")
     @ApiOperation(value = "创建订单", notes = "创建订单", httpMethod = "POST")
     public String create(
             @ApiParam(name = "submitOrderBO", value = "订单对象", required = true)
@@ -80,7 +79,7 @@ public class OrderController extends BaseController {
 
     }
 
-    @GetMapping("paid_order_info")
+    @GetMapping("api/v1/orders/paid_order_info")
     @ApiOperation(value = "查询支付状态", notes = "查询支付状态", httpMethod = "POST")
     public OrderStatus getPaidOrderInfo(@RequestParam @NotBlank String orderId) {
         return orderService.queryOrderStatusInfo(orderId);

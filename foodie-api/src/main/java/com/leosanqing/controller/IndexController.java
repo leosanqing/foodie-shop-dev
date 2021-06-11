@@ -16,13 +16,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,7 +31,6 @@ import java.util.List;
  * @Date: 2019-12-07 22:42
  */
 @RestController
-@RequestMapping("api/v1/index")
 @Api(value = "首页", tags = {"首页展示的相关接口"})
 public class IndexController {
 
@@ -45,7 +45,7 @@ public class IndexController {
     @Autowired
     ObjectMapper objectMapper;
 
-    @GetMapping("carousel")
+    @GetMapping("api/v1/index/carousel")
     @ApiOperation(value = "获取首页了轮播图列表", notes = "获取首页轮播图列表", httpMethod = "GET")
     public List<Carousel> carousel() throws IOException {
 
@@ -58,7 +58,7 @@ public class IndexController {
         List<Carousel> carousels;
         final String carouselStr = redisOperator.get("carousel");
         if (StringUtils.isNotBlank(carouselStr)) {
-           return objectMapper.readValue(
+            return objectMapper.readValue(
                     carouselStr, new TypeReference<List<Carousel>>() {
                     }
             );
@@ -70,7 +70,7 @@ public class IndexController {
         return carousels;
     }
 
-    @GetMapping("cats")
+    @GetMapping("api/v1/index/cats")
     @ApiOperation(value = "获取一级目录所有节点", notes = "获取一级目录所有节点", httpMethod = "GET")
     public List<Category> cats() throws IOException {
 
@@ -80,7 +80,7 @@ public class IndexController {
         if (StringUtils.isNotBlank(catsStr)) {
             return objectMapper.readValue(
                     catsStr, new TypeReference<List<Category>>() {
-            });
+                    });
         }
 
         categoryList = categoryService.queryAllRootLevelCat();
@@ -88,13 +88,12 @@ public class IndexController {
         return categoryList;
     }
 
-    @GetMapping("subCat/{rootCatId}")
+    @GetMapping("api/v1/index/subCat/{rootCatId}")
     @ApiOperation(value = "获取商品子分类", notes = "获取商品子分类", httpMethod = "GET")
     public List<CategoryVO> subCats(
             @ApiParam(name = "rootCatId", value = "一级分类Id", required = true)
             @PathVariable @NotNull Integer rootCatId) throws IOException {
 
-        List<CategoryVO> categoryVOList;
         final String subCatStr = redisOperator.get("subCat:" + rootCatId);
 
         if (StringUtils.isNotBlank(subCatStr)) {
@@ -102,8 +101,8 @@ public class IndexController {
             });
         }
 
-        categoryVOList = categoryService.getSubCatList(rootCatId);
-        if (categoryVOList == null || categoryVOList.isEmpty()) {
+        List<CategoryVO> categoryVOList = categoryService.getSubCatList(rootCatId);
+        if (CollectionUtils.isEmpty(categoryVOList)) {
             redisOperator.set("subCat:" + rootCatId, JsonUtils.objectToJson(categoryVOList));
         } else {
             redisOperator.set("subCat:" + rootCatId, JsonUtils.objectToJson(categoryVOList), 5 * 60 * 1000);
@@ -113,7 +112,7 @@ public class IndexController {
     }
 
 
-    @GetMapping("sixNewItems/{rootCatId}")
+    @GetMapping("api/v1/index/sixNewItems/{rootCatId}")
     @ApiOperation(value = "查询每个分类下的六个最新商品", notes = "查询每个分类下的六个最新商品", httpMethod = "GET")
     public List<NewItemsVO> getSixNewItems(
             @ApiParam(name = "rootCatId", value = "一级分类Id", required = true)

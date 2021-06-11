@@ -23,14 +23,13 @@ import javax.validation.constraints.NotBlank;
  */
 @Api(value = "我的订单-用户中心", tags = {"我的订单-用户中心展示的相关接口"})
 @RestController
-@RequestMapping("api/v1/my_orders")
 @Validated
 public class MyOrdersController {
 
     @Autowired
     private MyOrdersService myOrdersService;
 
-    @PostMapping("query")
+    @PostMapping("api/v1/my_orders/query")
     @ApiOperation(value = "查询我的订单", notes = "查询我的订单", httpMethod = "POST")
     public PagedGridResult queryMyOrders(
             @ApiParam(name = "userId", value = "用户id")
@@ -46,7 +45,7 @@ public class MyOrdersController {
     }
 
 
-    @GetMapping("trend")
+    @GetMapping("api/v1/my_orders/trend")
     @ApiOperation(value = "查询我的订单", notes = "查询我的订单", httpMethod = "GET")
     public PagedGridResult getTrend(
             @ApiParam(name = "userId", value = "用户id")
@@ -68,7 +67,7 @@ public class MyOrdersController {
      * @return:
      */
     @ApiOperation(value = "商家发货", notes = "商家发货", httpMethod = "GET")
-    @GetMapping("/deliver")
+    @GetMapping("api/v1/my_orders/deliver")
     public void deliver(
             @ApiParam(name = "orderId", value = "订单id", required = true)
             @RequestParam @NotBlank String orderId) {
@@ -78,7 +77,7 @@ public class MyOrdersController {
 
 
     @ApiOperation(value = "确认收货", notes = "确认收货", httpMethod = "POST")
-    @PostMapping("/confirm_receive")
+    @PostMapping("api/v1/my_orders/confirm_receive")
     public void confirmReceive(
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam @NotBlank String userId,
@@ -94,7 +93,7 @@ public class MyOrdersController {
 
 
     @ApiOperation(value = "删除订单", notes = "删除订单", httpMethod = "POST")
-    @DeleteMapping("order")
+    @DeleteMapping("api/v1/my_orders/order")
     public void deleteOrder(
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam String userId,
@@ -111,7 +110,7 @@ public class MyOrdersController {
 
 
     @ApiOperation(value = "查询订单状态", notes = "查询订单状态", httpMethod = "POST")
-    @PostMapping("status_counts")
+    @PostMapping("api/v1/my_orders/status_counts")
     public OrderStatusCountsVO statusCounts(
             @ApiParam(name = "userId", value = "用户id", required = true)
             @RequestParam @NotBlank String userId) {

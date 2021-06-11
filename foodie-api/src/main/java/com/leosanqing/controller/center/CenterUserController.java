@@ -35,7 +35,6 @@ import java.io.*;
  */
 @Api
 @RestController
-@RequestMapping("api/v1/userInfo")
 @Validated
 public class CenterUserController extends BaseController {
 //    public static final String USER_FACE_IMG_LOCATION =
@@ -54,7 +53,7 @@ public class CenterUserController extends BaseController {
     @Autowired
     private FileUpload fileUpload;
 
-    @PostMapping("update")
+    @PostMapping("api/v1/userInfo/update")
     @ApiOperation(value = "更新用户信息", notes = "更新用户信息", httpMethod = "POST")
     public UsersVO updateUserInfo(
             @ApiParam(name = "userId", value = "用户id")
@@ -77,7 +76,7 @@ public class CenterUserController extends BaseController {
     }
 
 
-    @PostMapping("uploadFace")
+    @PostMapping("api/v1/userInfo/uploadFace")
     @ApiOperation(value = "查询用户信息", notes = "查询用户信息", httpMethod = "POST")
     public void queryUserInfo(
             @ApiParam(name = "userId", value = "用户id", required = true)

@@ -25,14 +25,13 @@ import java.util.List;
  * @Date: 2019-12-08 21:01
  */
 @RestController
-@RequestMapping("api/v1/items")
 @Api(value = "商品接口", tags = {"商品展示的相关接口"})
 @Validated
 public class ItemController {
     @Autowired
     private ItemService itemService;
 
-    @GetMapping("info/{itemId}")
+    @GetMapping("api/v1/items/info/{itemId}")
     @ApiOperation(value = "商品详情", notes = "商品详情", httpMethod = "GET")
     public ItemInfoVO subCats(
             @ApiParam(name = "itemId", value = "商品Id", required = true)
@@ -52,7 +51,7 @@ public class ItemController {
     }
 
 
-    @GetMapping("commentLevel")
+    @GetMapping("api/v1/items/commentLevel")
     @ApiOperation(value = "商品评价等级", notes = "商品评价等级", httpMethod = "GET")
     public CommentLevelCountsVO getCommentsCount(
             @ApiParam(name = "itemId", value = "商品Id", required = true)
@@ -60,7 +59,7 @@ public class ItemController {
         return itemService.queryCommentCounts(itemId);
     }
 
-    @GetMapping("comments")
+    @GetMapping("api/v1/items/comments")
     @ApiOperation(value = "查询商品评价", notes = "查询商品评价", httpMethod = "GET")
     public PagedGridResult getCommentsCount(
             @ApiParam(name = "itemId", value = "商品Id", required = true)
@@ -75,7 +74,7 @@ public class ItemController {
     }
 
 
-    @GetMapping("search")
+    @GetMapping("api/v1/items/search")
     @ApiOperation(value = "搜索商品列表", notes = "搜索商品列表", httpMethod = "GET")
     public PagedGridResult searchItems(
             @ApiParam(name = "keywords", value = "关键字", required = true)
@@ -90,7 +89,7 @@ public class ItemController {
         return PagedGridResult.pageSetter(itemService.searchItems(keywords, sort, page, pageSize));
     }
 
-    @GetMapping("catItems")
+    @GetMapping("api/v1/items/catItems")
     @ApiOperation(value = "根据第三级分类搜索商品列表", notes = "根据第三级分类搜索商品列表", httpMethod = "GET")
     public PagedGridResult searchItems(
             @ApiParam(name = "catId", value = "第三级分类id", required = true)
@@ -104,7 +103,7 @@ public class ItemController {
         return PagedGridResult.pageSetter(itemService.searchItemsByCatId(catId, sort, page, pageSize));
     }
 
-    @GetMapping("refresh")
+    @GetMapping("api/v1/items/refresh")
     @ApiOperation(value = "刷新购物车", notes = "刷新购物车", httpMethod = "GET")
     public List<ShopcartVO> queryItemsBySpecIds(
             @ApiParam(name = "itemSpecIds", value = "商品规格Id列表", required = true)

@@ -27,7 +27,6 @@ import java.util.List;
  */
 @Api(value = "我的订单-我的评价", tags = {"我的评价-用户中心展示的相关接口"})
 @RestController
-@RequestMapping("api/vi/mycomment")
 @Validated
 public class MyCommentsController {
     @Resource
@@ -36,7 +35,7 @@ public class MyCommentsController {
     @Resource
     private MyOrdersService myOrdersService;
 
-    @PostMapping("pending")
+    @PostMapping("api/v1/mycomment/pending")
     @ApiOperation(value = "查询我的订单", notes = "查询我的订单", httpMethod = "POST")
     public List<OrderItems> pending(
             @ApiParam(name = "userId", value = "用户id")
@@ -53,7 +52,7 @@ public class MyCommentsController {
         return myCommentsService.queryPendingComment(orderId);
     }
 
-    @PostMapping("query")
+    @PostMapping("api/v1/mycomment/query")
     @ApiOperation(value = "查询我的评价", notes = "查询我的评价", httpMethod = "POST")
     public PagedGridResult queryMyComment(
             @ApiParam(name = "userId", value = "用户id")
@@ -67,7 +66,7 @@ public class MyCommentsController {
         return PagedGridResult.pageSetter(myCommentsService.queryMyComments(userId, page, pageSize));
     }
 
-    @PostMapping("saveList")
+    @PostMapping("api/v1/mycomment/saveList")
     @ApiOperation(value = "保存评价列表", notes = "保存评价列表", httpMethod = "POST")
     public void saveList(
             @ApiParam(name = "userId", value = "用户id")

@@ -6,6 +6,7 @@ import com.leosanqing.mapper.UserAddressMapper;
 import com.leosanqing.pojo.UserAddress;
 import com.leosanqing.pojo.bo.AddressBO;
 import com.leosanqing.service.AddressService;
+import jodd.util.ArraysUtil;
 import org.n3r.idworker.Sid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @Author: leosanqing
@@ -40,17 +43,12 @@ public class AddressServiceImpl extends ServiceImpl<UserAddressMapper, UserAddre
     @Transactional(propagation = Propagation.REQUIRED)
     public void addNewUserAddress(AddressBO addressBO) {
 
-        int isDefault = 0;
-        // 查询之前是否存在地址
-        List<UserAddress> addressList = queryAll(addressBO.getUserId());
-        if (null == addressList || addressList.isEmpty()) {
-            isDefault = 1;
-        }
-
         UserAddress userAddress = new UserAddress();
         BeanUtils.copyProperties(addressBO, userAddress);
         userAddress.setId(sid.nextShort());
-        userAddress.setIsDefault(isDefault);
+        userAddress.setIsDefault(
+                queryAll(addressBO.getUserId()).isEmpty() ? 1 : 0
+        );
         userAddress.setCreatedTime(new Date());
         userAddress.setUpdatedTime(new Date());
         baseMapper.insert(userAddress);

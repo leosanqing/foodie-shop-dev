@@ -24,7 +24,6 @@ import javax.validation.constraints.NotBlank;
  * @Date: 2019-12-06 00:22
  */
 @RestController
-@RequestMapping("api/v1/passport")
 @Api(value = "注册登录", tags = {"用于注册的接口"})
 @Slf4j
 @Validated
@@ -37,7 +36,7 @@ public class PassportController extends BaseController {
     private RedisOperator redisOperator;
 
 
-    @GetMapping("usernameIsExist")
+    @GetMapping("api/v1/passport/usernameIsExist")
     @ApiOperation(value = "用户名是否存在", notes = "用户名是否存在", httpMethod = "GET")
     public void usernameIsExist(@RequestParam @NotBlank String username) {
         // 判断用户名是否存在
@@ -47,7 +46,7 @@ public class PassportController extends BaseController {
         }
     }
 
-    @PostMapping("regist")
+    @PostMapping("api/v1/passport/regist")
     @ApiOperation(value = "用户注册", notes = "用户注册", httpMethod = "POST")
     public void register(@RequestBody @Validated UserBO userBO,
                          HttpServletRequest request,
@@ -82,7 +81,7 @@ public class PassportController extends BaseController {
     }
 
 
-    @PostMapping("login")
+    @PostMapping("api/v1/passport/login")
     @ApiOperation(value = "用户登录", notes = "用户登录", httpMethod = "POST")
     public UsersVO login(@RequestBody @Validated UserBO userBO,
                          HttpServletRequest request,
@@ -146,7 +145,7 @@ public class PassportController extends BaseController {
         }
     }
 
-    @PostMapping("logout")
+    @PostMapping("api/v1/passport/logout")
     @ApiOperation(value = "退出登录", notes = "退出登录", httpMethod = "POST")
     public void logout(@RequestParam @NotBlank String userId,
                        HttpServletRequest request, HttpServletResponse response) {
