@@ -1,5 +1,6 @@
 package com.leosanqing.pojo;
 
+import com.baomidou.mybatisplus.core.enums.IEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -58,7 +59,7 @@ public class Users {
     /**
      * 性别 性别 1:男  0:女  2:保密
      */
-    private Integer sex;
+    private Sex sex;
 
     /**
      * 生日 生日
@@ -76,4 +77,26 @@ public class Users {
      */
     @Column(name = "updated_time")
     private Date updatedTime;
+
+     public enum Sex implements IEnum<Integer> {
+        /**
+         * 表示性别的枚举
+         */
+        WOMAN(0, "女"),
+        MAN(1, "男"),
+        SECRET(2, "保密");
+
+        public final int value;
+        public final String desc;
+
+        Sex(int type, String desc) {
+            this.value = type;
+            this.desc = desc;
+        }
+
+         @Override
+         public Integer getValue() {
+             return this.value;
+         }
+     }
 }

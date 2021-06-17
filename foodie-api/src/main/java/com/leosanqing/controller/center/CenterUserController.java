@@ -128,9 +128,10 @@ public class CenterUserController extends BaseController {
 
         }
 
-        String finalUserServerUrl = fileUpload.getImgServerUrl() +
-                userFaceImgPrefix
-                + "?t=" + DateUtil.getCurrentDateString(DateUtil.DATE_PATTERN);
+        String finalUserServerUrl = fileUpload.getImgServerUrl()
+                + userFaceImgPrefix
+                + "?t="
+                + DateUtil.getCurrentDateString(DateUtil.DATE_PATTERN);
 
         final Users users = centerUserService.updateUserFace(userId, finalUserServerUrl);
 

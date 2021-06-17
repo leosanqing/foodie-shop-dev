@@ -234,18 +234,15 @@ public class DateUtil {
      * @param lenient  
      * @return
      */
-    public static Date stringToDate(String dateText, String format,
-                                    boolean lenient) {
+    public static Date stringToDate(String dateText, String format, boolean lenient) {
 
         if (dateText == null) {
-
             return null;
         }
 
         DateFormat df = null;
 
         try {
-
             if (format == null) {
                 df = new SimpleDateFormat();
             } else {
@@ -271,7 +268,7 @@ public class DateUtil {
     }
 
     /** java.util.Date
-     * @param dateText  
+     * @param      * @param dateString
      * @param format  
      * @return
      */
@@ -282,7 +279,7 @@ public class DateUtil {
 
     /**
      * java.util.Date
-     * @param dateText  
+     * @param dateString
      */
     public static Date stringToDate(String dateString) {
         return stringToDate(dateString, ISO_EXPANDED_DATE_FORMAT, LENIENT_DATE);
@@ -294,20 +291,15 @@ public class DateUtil {
      * @param date  
      */
     public static String dateToString(Date date, String pattern) {
-
         if (date == null) {
-
             return null;
         }
 
         try {
-
             SimpleDateFormat sfDate = new SimpleDateFormat(pattern);
             sfDate.setLenient(false);
-
             return sfDate.format(date);
         } catch (Exception e) {
-
             return null;
         }
     }
@@ -325,10 +317,7 @@ public class DateUtil {
      * @return  
      */
     public static Date getCurrentDateTime() {
-        Calendar calNow = Calendar.getInstance();
-        Date dtNow = calNow.getTime();
-
-        return dtNow;
+        return Calendar.getInstance().getTime();
     }
 
     /**
@@ -445,8 +434,7 @@ public class DateUtil {
      * @param desfmt 
      * @return
      */
-    public static String stringToString(String src, String srcfmt,
-                                        String desfmt) {
+    public static String stringToString(String src, String srcfmt, String desfmt) {
         return dateToString(stringToDate(src, srcfmt), desfmt);
     }
 
@@ -456,10 +444,8 @@ public class DateUtil {
      * @return string
      */
     public static String getYear(Date date) {
-        SimpleDateFormat formater = new SimpleDateFormat(
-                "yyyy");
-        String cur_year = formater.format(date);
-        return cur_year;
+        SimpleDateFormat formater = new SimpleDateFormat("yyyy");
+        return formater.format(date);
     }
 
     /**
@@ -470,8 +456,7 @@ public class DateUtil {
     public static String getMonth(Date date) {
         SimpleDateFormat formater = new SimpleDateFormat(
                 "MM");
-        String cur_month = formater.format(date);
-        return cur_month;
+        return formater.format(date);
     }
 
     /**

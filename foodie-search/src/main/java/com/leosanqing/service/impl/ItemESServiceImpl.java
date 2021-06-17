@@ -83,7 +83,8 @@ public class ItemESServiceImpl implements ItemESService {
                                         .price((Integer) hit.getSourceAsMap().get("price"))
                                         .sellCounts((Integer) hit.getSourceAsMap().get("sellCounts"))
                                         .build()
-                        ).collect(Collectors.toList());
+                        )
+                        .collect(Collectors.toList());
 
 
                 return new AggregatedPageImpl<>((List<T>) collect, pageable, response.getHits().totalHits);

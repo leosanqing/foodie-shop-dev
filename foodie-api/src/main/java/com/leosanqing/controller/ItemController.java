@@ -1,5 +1,6 @@
 package com.leosanqing.controller;
 
+import com.leosanqing.config.MybatisPlusAutoConfig;
 import com.leosanqing.pojo.Items;
 import com.leosanqing.pojo.ItemsImg;
 import com.leosanqing.pojo.ItemsParam;
@@ -10,8 +11,10 @@ import com.leosanqing.pojo.vo.ShopcartVO;
 import com.leosanqing.service.ItemService;
 import com.leosanqing.utils.PagedGridResult;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -76,31 +79,33 @@ public class ItemController {
 
     @GetMapping("api/v1/items/search")
     @ApiOperation(value = "搜索商品列表", notes = "搜索商品列表", httpMethod = "GET")
-    public PagedGridResult searchItems(
-            @ApiParam(name = "keywords", value = "关键字", required = true)
-            @RequestParam @NotBlank String keywords,
-            @ApiParam(name = "sort", value = "排序规则", required = false)
-            @RequestParam String sort,
-            @ApiParam(name = "page", value = "第几页", required = false)
-            @RequestParam(defaultValue = "1") Integer page,
-            @ApiParam(name = "pageSize", value = "每页个数", required = false)
-            @RequestParam(defaultValue = "10") Integer pageSize) {
+    public PagedGridResult searchItemsByKeyword(@Validated(KeywordGroup.class) SearchItemsReq req) {
+        return PagedGridResult.pageSetter(itemService.searchItems(req.getKeywords(), req.getSort(), req.getPageNo(), req.getPageSize()));
+    }
 
-        return PagedGridResult.pageSetter(itemService.searchItems(keywords, sort, page, pageSize));
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class SearchItemsReq extends MybatisPlusAutoConfig.PageReq {
+        @NotNull(groups = CategoryGroup.class)
+        Integer catId;
+        String sort;
+        @NotBlank(groups = KeywordGroup.class)
+        String keywords;
+    }
+
+    interface KeywordGroup {
+    }
+
+    interface CategoryGroup {
     }
 
     @GetMapping("api/v1/items/catItems")
     @ApiOperation(value = "根据第三级分类搜索商品列表", notes = "根据第三级分类搜索商品列表", httpMethod = "GET")
-    public PagedGridResult searchItems(
-            @ApiParam(name = "catId", value = "第三级分类id", required = true)
-            @RequestParam @NotNull Integer catId,
-            @ApiParam(name = "sort", value = "排序规则", required = false)
-            @RequestParam String sort,
-            @ApiParam(name = "page", value = "第几页", required = false)
-            @RequestParam(defaultValue = "1") Integer page,
-            @ApiParam(name = "pageSize", value = "每页个数", required = false)
-            @RequestParam(defaultValue = "10") Integer pageSize) {
-        return PagedGridResult.pageSetter(itemService.searchItemsByCatId(catId, sort, page, pageSize));
+    public PagedGridResult searchItems(@Validated(CategoryGroup.class) SearchItemsReq req) {
+        return PagedGridResult.pageSetter(itemService.searchItemsByCatId(req.getCatId(), req.getSort(), req.getPageNo(), req.getPageSize()));
     }
 
     @GetMapping("api/v1/items/refresh")

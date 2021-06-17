@@ -1,7 +1,6 @@
 package com.leosanqing.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.leosanqing.enums.Sex;
 import com.leosanqing.mapper.UsersMapper;
 import com.leosanqing.pojo.Users;
 import com.leosanqing.pojo.bo.UserBO;
@@ -9,7 +8,6 @@ import com.leosanqing.service.UserService;
 import com.leosanqing.utils.DateUtil;
 import com.leosanqing.utils.MD5Utils;
 import org.n3r.idworker.Sid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +47,7 @@ public class UserServiceImpl extends ServiceImpl<UsersMapper, Users> implements 
                     .face(FACE_PATH)
                     .birthday(DateUtil.stringToDate("1900-01-01"))
                     .nickname(userBO.getUsername())
-                    .sex(Sex.SECRET.type)
+                    .sex(Users.Sex.SECRET)
                     .createdTime(new Date())
                     .updatedTime(new Date())
                     .build();
